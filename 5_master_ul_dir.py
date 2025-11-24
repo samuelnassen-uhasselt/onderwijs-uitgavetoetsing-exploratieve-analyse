@@ -38,7 +38,20 @@ adres_hernoeming = {
     'Heist-op-den-Berg, Leuvensebaan 25-27':'Heist-op-den-Berg, Leuvensebaan 25',
     'Oostende, Leon Spilliaertstraat 30':'Leon Spilliaertstraat 28, 8400 Oostende',
     'Tessenderlo-Ham, Kerkstraat 4_A':'Tessenderlo-Ham, Kerkstraat 4A',
-    'Pelt, Ursulinenstraat 13_17':'Pelt, Ursulinenstraat 17'
+    'Pelt, Ursulinenstraat 13_17':'Pelt, Ursulinenstraat 17',
+    'Antwerpen, Lange Nieuwstraat 94':'Lange Nieuwstraat 90, 2000 Antwerpen',
+    'Machelen, Cornelis Peetersstraat 39':'Corneille Peetersstraat 35, 1830 Machelen',
+    'Wevelgem, Caesar Gezellestraat 7':'Caesar Gezellestraat 9, 8560 Wevelgem',
+    'Merelbeke-Melle, Beekstraat 38':'Beekstraat 40, 9090 Merelbeke‑Melle',
+    'Ieper, Minneplein Z/N':'Plumerlaan 24, 8900 Ieper',
+    'Houthalen-Helchteren, Lyceumstraat 11':'Houthalen-Helchteren, Lyceumstraat 9',
+    'Oudsbergen, Kloosterstraat 11':'Kloosterstraat 9, 3670 Oudsbergen',
+    'Kortrijk, Boerderijstraat 69_A':'Kortrijk, Boerderijstraat 69',
+    'Tervuren, Brusselsesteenweg 106':'Vanderhaegenhof 2B, 3080 Tervuren',
+    'Beringen, Burgemeester Geyskensstraat 11':'Burgemeester Geyskensstraat 8, 3580 Beringen',
+    'Brugge, Hugo Losschaertstraat 5_A':'Brugge, Hugo Losschaertstraat 5A',
+    'Antwerpen, Stoomstraat 11':'Mediaplein 3, 2018 Antwerpen',
+    'Kortrijk, Langemeersstraat 3':'Langemeersstraat 15, 8500 Kortrijk'
 }
 
 def get_uren_leraar(llngr_vp, llngr_inst):
@@ -74,6 +87,8 @@ def get_coords(adres):
     }
 
     response = requests.get(url,params=params).json()
+
+    print(adres)
 
     location = response['LocationResult'][0]['Location']
     lx = int(round(location['X_Lambert72'], 0))
