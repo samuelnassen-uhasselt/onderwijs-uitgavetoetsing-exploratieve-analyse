@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.cluster import DBSCAN
 from scipy.spatial.distance import pdist
 
-radius = 50
+radius = 100
 
 df = pd.read_excel('5_master_ul_dir.xlsx')
 df = df[(df['lx'].notna()) & (df['aantal_inschrijvingen_vp'].notna())]
@@ -39,4 +39,4 @@ df_volledig = df_volledig.rename(
         'vestigingsplaatsen': 'cluster'
     }
 )
-df_volledig.to_excel('13_vestigingsplaatsen_binnen_straal_50m.xlsx', index=False)
+df_volledig.to_excel('13_vestigingsplaatsen_binnen_straal_100m.xlsx', index=False)
