@@ -25,6 +25,17 @@ def merge_llngroep_dictionaries(string_dicts):
 
     return result
 
+def merge_llngroup_vul(string_dicts):
+    result = {}
+    for s in string_dicts:
+        if pd.notna(s):
+            d = ast.literal_eval(s)
+            if isinstance(d, dict):
+                for key, value in d.items():
+                    result[key] = result.get(key, 0) + value
+
+    return result
+
 def get_directeur_vol_half(llngr, aantal):
     for g in llngr.keys():
         if not '1e graad' in g and not '2e graad' in g and not 'okan' in g:
@@ -40,6 +51,7 @@ df_vestigingen = pd.read_excel("3_vestigingsplaatsen_master.xlsx")
 # Groepeer per schoolnummer en bereken leerlingengroepen
 df_schoolnummers = df_vestigingen.groupby('schoolnummer', dropna=False).agg({
     'leerlingengroepen': merge_llngroep_dictionaries,
+    'leerlingengroepen_vaste_ul': merge_llngroup_vul,
     'vaste_ul': 'sum',
     'aantal_inschrijvingen': 'sum'
 }).reset_index()
