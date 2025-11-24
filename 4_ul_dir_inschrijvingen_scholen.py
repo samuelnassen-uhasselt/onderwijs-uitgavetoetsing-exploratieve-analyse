@@ -35,12 +35,12 @@ def get_directeur_vol_half(llngr, aantal):
         return 1
     return 0.5
 
-
 df_vestigingen = pd.read_excel("3_vestigingsplaatsen_master.xlsx")
 
 # Groepeer per schoolnummer en bereken leerlingengroepen
 df_schoolnummers = df_vestigingen.groupby('schoolnummer', dropna=False).agg({
     'leerlingengroepen': merge_llngroep_dictionaries,
+    'vaste_ul': 'sum',
     'aantal_inschrijvingen': 'sum'
 }).reset_index()
 df_schoolnummers['directeurs'] = df_schoolnummers.apply(lambda row: get_directeur_vol_half(row['leerlingengroepen'], row['aantal_inschrijvingen']), axis=1)
