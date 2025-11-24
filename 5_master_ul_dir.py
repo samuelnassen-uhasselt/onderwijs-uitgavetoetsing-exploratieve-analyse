@@ -1,0 +1,108 @@
+import pandas as pd
+import ast
+import requests 
+
+adres_hernoeming = {
+    'Essen, Rouwmoer 7_B':'Essen, Rouwmoer 7B',
+    'Genk, Synaps Park 5400_':'Genk, Synaps Park 5400',
+    'Bornem, Driesstraat 10':'Kardinaal Cardijnplein 11, 2880 Bornem',
+    'Diest, Rozengaard Z/N':'Diest, Rozengaard',
+    'Diest, Rozengaard z/n':'Diest, Rozengaard',
+    'Haacht, Stationsstraat 91':'Haacht, Stationsstraat 87',
+    'Torhout, Spinneschoolstraat 10':'Torhout, Spinneschoolstraat 2',
+    'Buggenhout, Collegestraat 5':'Buggenhout, Collegestraat 10',
+    'Dendermonde, Noordlaan 51':'Dendermonde, Noordlaan 104',
+    'Lokeren, Luikstraat 61':'Lokeren, Luikstraat 65',
+    'Essen, Hofstraat 14':'Essen, Hofstraat 12a',
+    'Kortrijk, Burgemeester Felix de Bethunelaa 4':'Kortrijk, Burgemeester Felix de Bethunelaan 4',
+    'Gent, Coupure Rechts 312':'Coupure 312, 9000 Gent',
+    'Tienen, Waaibergstraat 45':'Tienen, Waaibergstraat 93',
+    'Tienen, Waaibergstraat 43':'Tienen, Waaibergstraat 5',
+    'Antwerpen, Willem Gijsselsstraat 22':'Antwerpen, Willem Gijsselsstraat 15',
+    'Antwerpen, Van Helmontstraat 27':'Antwerpen, Pothoekstraat 125',
+    'Ardooie, Gapaardstraat 34':'Ardooie, Gapaardstraat 28',
+    'Sint-Katelijne-Waver, Borgersteinlei 203':'Sint-Katelijne-Waver, Borgersteinlei 201',
+    'Gent, Spitaalpoortstraat 50':'Gent, Spitaalpoortstraat 58',
+    'Essen, Rouwmoer 7 B':'Essen, Rouwmoer 7B',
+    'Antwerpen, Willem Gijsselsstraat 20':'Antwerpen, Willem Gijsselsstraat 2',
+    'Gent, Neermeerskaai 1 A':'Gent, Neermeerskaai 1A',
+    'Berlaar, Sollevelden 3 A':'Berlaar, Sollevelden 3A',
+    'Ichtegem, Aartrijkestraat 12 A':'Ichtegem, Aartrijkestraat 12A',
+    'Pelt, Dorpsstraat 91':'Schrijnwerkerijstraat 1, 3900 Pelt',
+    'Genk, Schiepse Bos campus LiZa 5':'Synaps Park 5400A, 3600 Genk',
+    'Vilvoorde, Zennelaan 51_53':'Zennelaan 51, 1800 Vilvoorde',
+    'Bredene, Unescostraat Z/N':'Unescostraat 1, 8450 Bredene',
+    'Gent, Neermeerskaai 1_':'Gent, Neermeerskaai 1',
+    'Berlaar, Sollevelden 3_A':'Berlaar, Sollevelden 3A',
+    'Ichtegem, Aartrijkestraat 12_A':'Ichtegem, Aartrijkestraat 12A',
+    'Heist-op-den-Berg, Leuvensebaan 25-27':'Heist-op-den-Berg, Leuvensebaan 25',
+    'Oostende, Leon Spilliaertstraat 30':'Leon Spilliaertstraat 28, 8400 Oostende',
+    'Tessenderlo-Ham, Kerkstraat 4_A':'Tessenderlo-Ham, Kerkstraat 4A',
+    'Pelt, Ursulinenstraat 13_17':'Pelt, Ursulinenstraat 17'
+}
+
+def get_uren_leraar(llngr_vp, llngr_inst):
+    if pd.notna(llngr_vp):
+        vp_dict = ast.literal_eval(llngr_vp)
+        inst_dict = ast.literal_eval(llngr_inst)
+        result = {}
+        for key, value in vp_dict.items():
+            ul = inst_dict[key]['uren-leraar']*(value/inst_dict[key]['inschrijvingen'])
+            result[key] = {
+                'inschrijvingen': value,
+                'uren-leraar': ul,
+            }
+        return result
+    
+def ul_vp(llngroepen):
+    if pd.notna(llngroepen):
+        result = 0
+        for key, value in llngroepen.items():
+            result += value['uren-leraar']
+        return result
+
+def get_coords(adres):
+    # Adressen die de api niet kan vinden
+    if adres in adres_hernoeming.keys():
+        adres = adres_hernoeming[adres]
+
+    url = 'https://geo.api.vlaanderen.be/geolocation/v4/Location'
+
+    params = {
+        'q': adres,
+        'c': 1
+    }
+
+    response = requests.get(url,params=params).json()
+
+    location = response['LocationResult'][0]['Location']
+    lx = int(round(location['X_Lambert72'], 0))
+    ly = int(round(location['Y_Lambert72'], 0))
+    return lx, ly
+
+def get_lambert(row):
+    lx = row['lx']
+    ly = row['ly']
+    if not pd.notna(lx):
+        adres = row['vestigingsplaats_adres']
+        if pd.notna(adres):
+            return pd.Series(get_coords(adres))
+    return pd.Series([lx, ly])
+
+df_master = pd.read_excel('3_vestigingsplaatsen_master.xlsx')
+df_schoolnummers = pd.read_excel('4_schoolnummers_llngroepen_ul_inschrijvingen.xlsx')
+
+# Merge met scholen getallen om procentuele berekeningen te kunnen doen
+df = pd.merge(df_master, df_schoolnummers, how='left', on='schoolnummer', suffixes=['_vp', '_inst'])
+
+# Vul missend lx en ly in
+df[['lx', 'ly']] = df.apply(get_lambert, axis=1)
+
+# Bereken de percentages
+df['directeur_vp'] = df['aantal_inschrijvingen_vp']/df['aantal_inschrijvingen_inst']
+df['ul_llngroepen'] = df.apply(lambda row: get_uren_leraar(row['leerlingengroepen_vp'], row['leerlingengroepen_inst']), axis=1)
+df['ul_vp'] = df['ul_llngroepen'].apply(ul_vp)
+df['lln_per_dir'] = df['aantal_inschrijvingen_vp']/df['directeur_vp']
+df['ul_per_lln'] = df['ul_vp']/df['aantal_inschrijvingen_vp']
+
+df.to_excel('5_master_ul_dir.xlsx', index=False)
