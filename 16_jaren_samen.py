@@ -6,9 +6,11 @@ jaren_folders = [f for f in os.listdir(folder)]
 
 file_zelfde_adres = '7_analyse_clusters_zelfde_adres.xlsx'
 file_100m = '14_analyse_clusters_straal_100m.xlsx'
+file_master = '5_master_ul_dir.xlsx'
 
 data_zelfde_adres = []
 data_100m = []
+data_master = []
 
 for jaar in jaren_folders:
     file_path_zelfde_adres = os.path.join(folder, jaar, file_zelfde_adres)
@@ -21,8 +23,16 @@ for jaar in jaren_folders:
     df_100m['jaar'] = jaar
     data_100m.append(df_100m)
 
+    file_path_master = os.path.join(folder, jaar, file_master)
+    df_master = pd.read_excel(file_path_master)
+    df_master['jaar'] = jaar
+    data_master.append(df_master)
+
 df_alles_zelfde_adres = pd.concat(data_zelfde_adres, ignore_index=True)
 df_alles_zelfde_adres.to_excel('16a_analyse_jaren_zelfde_adres.xlsx', index=False)
 
 df_alles_100m = pd.concat(data_100m, ignore_index=True)
 df_alles_100m.to_excel('16b_analyse_jaren_100m.xlsx', index=False)
+
+df_alles_master = pd.concat(data_master, ignore_index=True)
+df_alles_master.to_excel('16c_master_jaren.xlsx', index=False)
