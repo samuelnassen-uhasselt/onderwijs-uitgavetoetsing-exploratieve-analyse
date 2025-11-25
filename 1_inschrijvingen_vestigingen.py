@@ -26,7 +26,7 @@ df['vaste_ul'] = df.apply(lambda row: vul.get_ul(
     row['studierichting'], row['leerlingengroep'], row['aantal_inschrijvingen']
 ), axis= 1)
 
-df.to_excel('1b_vaste_ul_stdr.xlsx', index=False)
+df.to_excel('output/1b_vaste_ul_stdr.xlsx', index=False)
 
 # Groepeer op leerlingengroep om de leerjaren samen te nemen
 df = df.groupby(['vestigingsplaats', 'vestigingsplaats_adres', 'leerlingengroep', 'schoolbestuur', 'onderwijsnet']).agg({

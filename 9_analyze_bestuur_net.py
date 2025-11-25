@@ -5,11 +5,11 @@ df_units = pd.read_excel('output/8a_analyse_units.xlsx')
 df_units_met_inschrijvingen = df_units[df_units['aantal_leerlingen'] != 0]
 
 # AS-IS situatie bestuur (op instellingsnummer)
-df_bestuur_master = df_master.groupby(['schoolbestuur', 'schoolnummer'])[['vaste_ul', 'ul_vp', 'directeur_vp', 'aantal_inschrijvingen_vp']].sum().reset_index()
+df_bestuur_master = df_master.groupby(['schoolbestuur', 'schoolnummer'])[['vaste_ul_vp', 'ul_vp', 'directeur_vp', 'aantal_inschrijvingen_vp']].sum().reset_index()
 df_bestuur_master = df_bestuur_master.groupby('schoolbestuur').agg(
     instellingen = ('schoolnummer', 'count'),
     aantal_leerlingen = ('aantal_inschrijvingen_vp', 'sum'),
-    ul_vast = ('vaste_ul', 'sum'),
+    ul_vast = ('vaste_ul_vp', 'sum'),
     ul_asis = ('ul_vp', 'sum'),
     directeur_asis = ('directeur_vp', 'sum')
 ).reset_index()
@@ -41,11 +41,11 @@ df_bestuur.to_excel('output/9a_analyse_bestuur.xlsx', index=False)
 
 
 # AS-IS situatie net (op instellingsnummer)
-df_net_master = df_master.groupby(['net', 'schoolnummer'])[['vaste_ul', 'ul_vp', 'directeur_vp', 'aantal_inschrijvingen_vp']].sum().reset_index()
+df_net_master = df_master.groupby(['net', 'schoolnummer'])[['vaste_ul_vp', 'ul_vp', 'directeur_vp', 'aantal_inschrijvingen_vp']].sum().reset_index()
 df_net_master = df_net_master.groupby('net').agg(
     instellingen = ('schoolnummer', 'count'),
     aantal_leerlingen = ('aantal_inschrijvingen_vp', 'sum'),
-    ul_vast = ('vaste_ul', 'sum'),
+    ul_vast = ('vaste_ul_vp', 'sum'),
     ul_asis = ('ul_vp', 'sum'),
     directeur_asis = ('directeur_vp', 'sum')
 ).reset_index()
