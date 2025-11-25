@@ -1,4 +1,4 @@
-How to
+# How to
 
 Om de analyse opnieuw te maken, voer de bestanden uit van 0 t.e.m. 16.
 Hiervoor zijn de mappen 'Brondata' en 'output' nodig.
