@@ -1,9 +1,9 @@
 # How to
 
 Om de analyse opnieuw te maken, voer de bestanden uit van 0 t.e.m. 16.
-Hiervoor zijn de mappen 'Brondata' en 'output' nodig.
+Hiervoor zijn de mappen 'Brondata' en 'output' nodig. Deze moeten aangemaakt worden.
 
-In de Brondata moeten de mappen 'Inschrijvingen', 'Omkadering', 'Units en complexen' en 'Vestigingsplaatsen' staan.
+In de Brondata moeten de mappen 'Inschrijvingen', 'Omkadering', 'Units en complexen' en 'Vestigingsplaatsen' staan. Hierin staan de bestanden nodig voor de analyse.
 De output is leeg.
 
 Voor script 16 (samenvatting van de informatie van alle jaren) moeten eerst de analyses uitgevoerd worden per jaar.
