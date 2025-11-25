@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-folder = 'jaren'
+folder = 'output/jaren'
 jaren_folders = [f for f in os.listdir(folder)]
 
 file_zelfde_adres = '7_analyse_clusters_zelfde_adres.xlsx'
@@ -29,10 +29,10 @@ for jaar in jaren_folders:
     data_master.append(df_master)
 
 df_alles_zelfde_adres = pd.concat(data_zelfde_adres, ignore_index=True)
-df_alles_zelfde_adres.to_excel('16a_analyse_jaren_zelfde_adres.xlsx', index=False)
+df_alles_zelfde_adres.to_excel('output/16a_analyse_jaren_zelfde_adres.xlsx', index=False)
 
 df_alles_100m = pd.concat(data_100m, ignore_index=True)
-df_alles_100m.to_excel('16b_analyse_jaren_100m.xlsx', index=False)
+df_alles_100m.to_excel('output/16b_analyse_jaren_100m.xlsx', index=False)
 
 df_alles_master = pd.concat(data_master, ignore_index=True)
-df_alles_master.to_excel('16c_master_jaren.xlsx', index=False)
+df_alles_master.to_excel('output/16c_master_jaren.xlsx', index=False)

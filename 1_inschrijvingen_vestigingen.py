@@ -43,4 +43,4 @@ df = df.groupby(['vestigingsplaats', 'vestigingsplaats_adres', 'schoolbestuur', 
     vaste_ul=('vaste_ul', 'sum')
 ).reset_index()
 
-df.to_excel('1a_inschrijvingen_vestigingsplaatsen_llngroepen_aantal-24-25.xlsx', index=False)
+df.to_excel('output/1a_inschrijvingen_vestigingsplaatsen_llngroepen_aantal-24-25.xlsx', index=False)

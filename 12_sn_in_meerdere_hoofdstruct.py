@@ -11,4 +11,4 @@ df_in = df.groupby('instellingsnummer')['hoofdstructuur'].count().reset_index()
 df_in = df_in[df_in['hoofdstructuur']>1]
 
 df = df[df['instellingsnummer'].isin(df_in['instellingsnummer'].values)].sort_values('instellingsnummer')
-df.to_excel('12_sn_in_meerdere_hoofdstruct.xlsx', index=False)
+df.to_excel('output/12_sn_in_meerdere_hoofdstruct.xlsx', index=False)

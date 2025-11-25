@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_excel('10_vergelijkbare_scholen.xlsx')
+df = pd.read_excel('output/10_vergelijkbare_scholen.xlsx')
 
 df = df.groupby(['c_aantal_leerlingen', 'c_leerlingengroepen']).agg(
     aantal_adressen = ('adres', 'count'),
@@ -24,4 +24,4 @@ df = df.groupby(['c_aantal_leerlingen', 'c_leerlingengroepen']).agg(
     
 ).reset_index()
 
-df.to_excel('11_analyse_clusters_vergelijkbaar.xlsx', index=False)
+df.to_excel('output/11_analyse_clusters_vergelijkbaar.xlsx', index=False)
