@@ -34,11 +34,11 @@ def get_sr(vps, jaar):
     return pd.Series(result)
 
 
-df_units['uren-leraar-asis'] = df_units['ul_vast'] + df_units['ul_asis']
+df_units['uren-leraar_asis'] = df_units['ul_vast'] + df_units['ul_asis']
 df_units[['aantal_studietrajecten', 'opgenomen_studiepunten', 'verworven_studiepunten']] = df_units.apply(lambda row: get_sr(row['unit_code_so'], row['jaar']), axis=1)
 df_units['studierendement'] = df_units['verworven_studiepunten']/df_units['opgenomen_studiepunten']
 df_units = df_units[['unit_code_so', 'jaar', 'unit_code_SO_actief', 'schoolbestuur', 'net', 'llng_tobe', 
-                    'aantal_leerlingen', 'uren-leraar-asis', 'directeurs_asis', 
+                    'aantal_leerlingen', 'uren-leraar_asis', 'directeurs_asis', 
                     'aantal_studietrajecten', 'opgenomen_studiepunten', 'verworven_studiepunten', 'studierendement']]
 df_units = df_units.rename(
     columns={
