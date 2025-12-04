@@ -4,7 +4,7 @@ import pandas as pd
 import degressieve_ul_llngroepen as dul
 
 df_units = pd.read_excel('Brondata\\Units en complexen\\SO_complexen_DLinfo.xlsx')
-df_vestigingen = pd.read_excel('output/5_master_ul_dir.xlsx').set_index('vestigingsplaats')
+df_vestigingen = pd.read_excel('jaren/2019-2020/5_master_ul_dir.xlsx').set_index('vestigingsplaats')
 
 def get_bestuur(vps):
     result = []
@@ -95,7 +95,7 @@ def get_vaste_ul(vps):
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            vul = df_vestigingen.loc[int(vp), 'vaste_ul_vp']
+            vul = df_vestigingen.loc[int(vp), 'vaste_ul']
             if pd.notna(vul):
                 result += vul
         except:
@@ -151,7 +151,7 @@ df_units['bso eind'] = df_units['leerlingengroepen'].apply(lambda llng: '3e graa
 df_eindes = df_units.groupby(['aso eind', 'tso eind', 'bso eind'])['unit_code_so'].count().reset_index().rename(columns={
     'unit_code_so': 'aantal units'
 })
-df_eindes.to_excel('output/8b_eindes_aantal_units.xlsx', index=False)
+df_eindes.to_excel('8b_eindes_aantal_units.xlsx', index=False)
 
 # Vaste uren-leraar leerlingengroepen
 df_units['llngroep_ul_vast'] = df_units['unit_code_so'].apply(get_llngroep_vul)
@@ -173,4 +173,4 @@ df_units['directeur_diff'] = df_units['directeur_tobe'] - df_units['directeurs_a
 df_units['lln_per_dir_asis'] = df_units['aantal_leerlingen']/df_units['directeurs_asis']
 df_units['lln_per_dir_tobe'] = df_units['aantal_leerlingen']/df_units['directeur_tobe']
 
-df_units.to_excel('output/8a_analyse_units.xlsx', index=False)
+df_units.to_excel('8a_analyse_units.xlsx', index=False)

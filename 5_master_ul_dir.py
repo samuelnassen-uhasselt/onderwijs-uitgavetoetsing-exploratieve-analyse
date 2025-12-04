@@ -105,8 +105,6 @@ def get_lambert(row):
 df_master = pd.read_excel('output/3_vestigingsplaatsen_master.xlsx')
 df_schoolnummers = pd.read_excel('output/4_schoolnummers_llngroepen_ul_inschrijvingen.xlsx')
 
-print(df_master.columns)
-
 # Merge met scholen getallen om procentuele berekeningen te kunnen doen
 df = pd.merge(df_master, df_schoolnummers, how='left', on='schoolnummer', suffixes=['_vp', '_inst'])
 
