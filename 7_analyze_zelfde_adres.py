@@ -2,11 +2,12 @@ import pandas as pd
 import ast
 import numpy as np
 import degressieve_ul_llngroepen as dul
+import sys
 
-df_clusters = pd.read_excel('output/6b_clusters_zelfde_adres_en_bestuur.xlsx')
-df_vestigingen = pd.read_excel('output/5_master_ul_dir.xlsx')
+df_clusters = pd.read_excel(f'jaren/{sys.argv[1]}/6b_clusters_zelfde_adres_en_bestuur.xlsx')
+df_vestigingen = pd.read_excel(f'jaren/{sys.argv[1]}/5_master_ul_dir.xlsx')
 df_vp_index = df_vestigingen.set_index('vestigingsplaats')
-df_inschrijvingen_adres = pd.read_excel('output/1a_inschrijvingen_vestigingsplaatsen_llngroepen_aantal-24-25.xlsx')
+df_inschrijvingen_adres = pd.read_excel(f'jaren/{sys.argv[1]}/1a_inschrijvingen_vestigingsplaatsen_llngroepen_aantal.xlsx')
 df_inschrijvingen_index = df_inschrijvingen_adres.set_index('vestigingsplaats')
 
 def get_adres(vps):
@@ -118,7 +119,7 @@ def get_vaste_ul(vps):
     result = 0
     for vp in vps.split('_'):
         try:
-            vul = df_vp_index.loc[int(vp), 'vaste_ul']
+            vul = df_vp_index.loc[int(vp), 'vaste_ul_vp']
             result += vul
         except:
             result += 0
@@ -205,4 +206,4 @@ df_clusters['directeur_diff'] = df_clusters['directeur_cluster'] - df_clusters['
 df_clusters['lln_per_dir_asis'] = df_clusters['aantal_leerlingen']/df_clusters['directeurs_asis']
 df_clusters['lln_per_dir_cluster'] = df_clusters['aantal_leerlingen']/df_clusters['directeur_cluster']
 
-df_clusters.to_excel('output/7_analyse_clusters_zelfde_adres.xlsx', index=False)
+df_clusters.to_excel(f'jaren/{sys.argv[1]}/7_analyse_clusters_zelfde_adres.xlsx', index=False)
