@@ -3,7 +3,7 @@ import networkx as nx
 import sys
 
 # Gebruik inschrijvingen tabel voor adressen
-df_vestigingen = pd.read_excel(f'jaren/{sys.argv[1]}/3_vestigingsplaatsen_master.xlsx')
+df_vestigingen = pd.read_excel(f'output/jaren/{sys.argv[1]}/3_vestigingsplaatsen_master.xlsx')
 
 # Filter vestgingsplaatsen weg zonder adres
 df_vestigingen = df_vestigingen[df_vestigingen['vestigingsplaats_adres'].notna()]
@@ -15,7 +15,7 @@ df_zelfde = df_zelfde[df_zelfde['vestigingsplaats_1'] != df_zelfde['vestigingspl
 # Filter paren weg met verschillend bestuur
 df_zelfde = df_zelfde[df_zelfde['schoolbestuur_1'] == df_zelfde['schoolbestuur_2']]
 
-df_zelfde.to_excel(f'jaren/{sys.argv[1]}/6a_vestigingen_zelfde_adres_bestuur.xlsx', index=False)
+df_zelfde.to_excel(f'output/jaren/{sys.argv[1]}/6a_vestigingen_zelfde_adres_bestuur.xlsx', index=False)
 
 
 # Maak een graaf. Hierbij verbinden we alle paren van scholen die binnen een aftand van 200m van elkaar liggen, zoals eerder bepaald.
@@ -39,4 +39,4 @@ for cluster in clusters:
     )
 
 df_clusters = pd.DataFrame(list(zip(cluster_data, cluster_instellingen)), columns=['cluster', 'schoolnummers'])
-df_clusters.to_excel(f'jaren/{sys.argv[1]}/6b_clusters_zelfde_adres_en_bestuur.xlsx', index=False)
+df_clusters.to_excel(f'output/jaren/{sys.argv[1]}/6b_clusters_zelfde_adres_en_bestuur.xlsx', index=False)

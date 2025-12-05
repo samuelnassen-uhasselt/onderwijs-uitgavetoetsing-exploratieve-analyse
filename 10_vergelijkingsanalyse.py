@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 import ast
 import sys
 
-df_master = pd.read_excel(f'jaren/{sys.argv[1]}/5_master_ul_dir.xlsx')
+df_master = pd.read_excel(f'output/jaren/{sys.argv[1]}/5_master_ul_dir.xlsx')
 df_master = df_master[~df_master['vestigingsplaats_adres'].isna()]
 df_schoolnummers = df_master.groupby('schoolnummer')['vestigingsplaats'].count()
 
@@ -27,7 +27,7 @@ def get_llngr_percent(row):
     return dict(sorted(percentages.items(), key=lambda item: item[0]))
 
 
-df = pd.read_excel(f'jaren/{sys.argv[1]}/7_analyse_clusters_zelfde_adres.xlsx').rename(
+df = pd.read_excel(f'output/jaren/{sys.argv[1]}/7_analyse_clusters_zelfde_adres.xlsx').rename(
     columns={
         'cluster': 'vestingingsplaatsen'
 })
@@ -81,4 +81,4 @@ df = df[['adres', 'schoolnummers', 'vp_per_sn', 'bestuur', 'net', 'aantal_leerli
              }
          )
 
-df.to_excel(f'jaren/{sys.argv[1]}/10_vergelijkbare_scholen.xlsx', index=False)
+df.to_excel(f'output/jaren/{sys.argv[1]}/10_vergelijkbare_scholen.xlsx', index=False)

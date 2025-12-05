@@ -106,8 +106,8 @@ def get_lambert(row):
             return pd.Series(get_coords(adres))
     return pd.Series([lx, ly])
 
-df_master = pd.read_excel(f'jaren/{sys.argv[1]}/3_vestigingsplaatsen_master.xlsx')
-df_schoolnummers = pd.read_excel(f'jaren/{sys.argv[1]}/4_schoolnummers_llngroepen_ul_inschrijvingen.xlsx')
+df_master = pd.read_excel(f'output/jaren/{sys.argv[1]}/3_vestigingsplaatsen_master.xlsx')
+df_schoolnummers = pd.read_excel(f'output/jaren/{sys.argv[1]}/4_schoolnummers_llngroepen_ul_inschrijvingen.xlsx')
 
 # Merge met scholen getallen om procentuele berekeningen te kunnen doen
 df = pd.merge(df_master, df_schoolnummers, how='left', on='schoolnummer', suffixes=['_vp', '_inst'])
@@ -122,4 +122,4 @@ df['ul_vp'] = df['ul_llngroepen'].apply(ul_vp)
 df['lln_per_dir'] = df['aantal_inschrijvingen_vp']/df['directeur_vp']
 df['ul_per_lln'] = df['ul_vp']/df['aantal_inschrijvingen_vp']
 
-df.to_excel(f'jaren/{sys.argv[1]}/5_master_ul_dir.xlsx', index=False)
+df.to_excel(f'output/jaren/{sys.argv[1]}/5_master_ul_dir.xlsx', index=False)

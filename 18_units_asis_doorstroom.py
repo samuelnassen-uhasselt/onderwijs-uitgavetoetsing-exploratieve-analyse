@@ -1,9 +1,9 @@
 import pandas as pd
 import numpy as np
 
-df_units = pd.read_excel('16d_units_jaren.xlsx')
-df_doorstroom_pg = pd.read_excel('Brondata/UHasselt_doorstroomSR_dataaanvraag2025.xlsx', sheet_name='Participatiegraad')
-df_doorstroom_sr = pd.read_excel('Brondata/UHasselt_doorstroomSR_dataaanvraag2025.xlsx', sheet_name='Studierendement')
+df_units = pd.read_excel('output/16d_units_jaren.xlsx')
+df_doorstroom_pg = pd.read_excel('Brondata/Doorstroom/UHasselt_doorstroomSR_dataaanvraag2025.xlsx', sheet_name='Participatiegraad')
+df_doorstroom_sr = pd.read_excel('Brondata/Doorstroom/UHasselt_doorstroomSR_dataaanvraag2025.xlsx', sheet_name='Studierendement')
 
 df_doorstroom_pg['jaar'] = df_doorstroom_pg['Schooljaar code'].astype(str) + '-' + (df_doorstroom_pg['Schooljaar code'] + 1).astype(str)
 df_doorstroom_pg['vp_code'] = df_doorstroom_pg['Instellingscode instelling']*100 + df_doorstroom_pg['Intern volgnummer vestigingsplaats']
