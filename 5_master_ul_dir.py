@@ -1,6 +1,6 @@
 import pandas as pd
 import ast
-import requests 
+import requests
 
 adres_hernoeming = {
     'Essen, Rouwmoer 7_B':'Essen, Rouwmoer 7B',
@@ -51,7 +51,10 @@ adres_hernoeming = {
     'Beringen, Burgemeester Geyskensstraat 11':'Burgemeester Geyskensstraat 8, 3580 Beringen',
     'Brugge, Hugo Losschaertstraat 5_A':'Brugge, Hugo Losschaertstraat 5A',
     'Antwerpen, Stoomstraat 11':'Mediaplein 3, 2018 Antwerpen',
-    'Kortrijk, Langemeersstraat 3':'Langemeersstraat 15, 8500 Kortrijk'
+    'Kortrijk, Langemeersstraat 3':'Langemeersstraat 15, 8500 Kortrijk',
+    'Dilsen-Stokkem, Stadsgraaf Campus Dilsen-Stokkem 22': 'Schuttersstraat 7, 3650 Dilsen‑Stokkem',
+    'Wingene, Pensionaatstraat 10': 'Wingene, Pensionaatstraat 8',
+    'Lokeren, H.-Hartlaan 1_A': 'Lokeren, H.-Hartlaan 1A'
 }
 
 def get_uren_leraar(llngr_vp, llngr_inst):
@@ -102,8 +105,8 @@ def get_lambert(row):
             return pd.Series(get_coords(adres))
     return pd.Series([lx, ly])
 
-df_master = pd.read_excel('output/3_vestigingsplaatsen_master.xlsx')
-df_schoolnummers = pd.read_excel('output/4_schoolnummers_llngroepen_ul_inschrijvingen.xlsx')
+df_master = pd.read_excel('jaren/2023-2024/3_vestigingsplaatsen_master.xlsx')
+df_schoolnummers = pd.read_excel('jaren/2023-2024/4_schoolnummers_llngroepen_ul_inschrijvingen.xlsx')
 
 # Merge met scholen getallen om procentuele berekeningen te kunnen doen
 df = pd.merge(df_master, df_schoolnummers, how='left', on='schoolnummer', suffixes=['_vp', '_inst'])
@@ -118,4 +121,4 @@ df['ul_vp'] = df['ul_llngroepen'].apply(ul_vp)
 df['lln_per_dir'] = df['aantal_inschrijvingen_vp']/df['directeur_vp']
 df['ul_per_lln'] = df['ul_vp']/df['aantal_inschrijvingen_vp']
 
-df.to_excel('output/5_master_ul_dir.xlsx', index=False)
+df.to_excel('jaren/2022-2023/5_master_ul_dir.xlsx', index=False)

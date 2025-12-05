@@ -53,6 +53,10 @@ def get_degressieve_uren_leraar(llngroep, aantal):
         (llngroep == '2e graad kso') or (llngroep == '3e graad kso') or
         (llngroep == '4e graad bso')):
         return 0
+    if llngroep == '1e graad 2':
+        llngroep = '1e graad A'
+    if llngroep == '1e graad BV':
+        llngroep = '1e graad B'
 
     lln = degressieve_ul[llngroep]['lln']
     coef = degressieve_ul[llngroep]['coef']
