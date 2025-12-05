@@ -1,6 +1,16 @@
 import pandas as pd
 import vaste_ul as vul
 
+def get_leerlingengroep(graad, leerjaar, ov):
+    if graad == '1e graad':
+        if leerjaar == 'BV':
+            return f'{graad} {leerjaar}'
+        else:
+            return f'{graad} {leerjaar[-1]}'
+    if graad == 'n.v.t. (hbo)':
+        return 'hbo'
+    return f'{graad} {ov}'
+
 inschrijvingen = "Brondata\\Inschrijvingen\\inschrijvingen-leerplicht-instellingen-dataset-2024-2025-1feb.xlsx"
 
 df = pd.read_excel(inschrijvingen)
@@ -16,11 +26,8 @@ df = df.groupby([
 # Maak nieuwe kolommen
 # Definieer leerlingengroep A/B aan de hand van leerjaren voor eerste graad (1A/B, 2A/B)
 df['vestigingsplaats'] = df['instellingsnummer'].astype(str) + df['intern_volgnr_vpl'].astype(str).str.zfill(2)
-df['leerlingengroep'] = df.apply(lambda row: f'{row['graad_so']} {row['leerjaar_code'][-1]}'
-                                 if row['graad_so'] == '1e graad'
-                                 else 'hbo'
-                                 if row['graad_so'] == 'n.v.t. (hbo)'
-                                 else f'{row['graad_so']} {row['onderwijsvorm']}', 
+df['leerlingengroep'] = df.apply(lambda row: 
+                                 get_leerlingengroep(row['graad_so'], row['leerjaar_code'], row['onderwijsvorm']), 
                                  axis=1)
 df['vaste_ul'] = df.apply(lambda row: vul.get_ul(
     row['studierichting'], row['leerlingengroep'], row['aantal_inschrijvingen']
@@ -43,4 +50,4 @@ df = df.groupby(['vestigingsplaats', 'vestigingsplaats_adres', 'schoolbestuur', 
     vaste_ul=('vaste_ul', 'sum')
 ).reset_index()
 
-df.to_excel('output/1a_inschrijvingen_vestigingsplaatsen_llngroepen_aantal-24-25.xlsx', index=False)
+df.to_excel('output/1a_inschrijvingen_vestigingsplaatsen_llngroepen_aantal.xlsx', index=False)

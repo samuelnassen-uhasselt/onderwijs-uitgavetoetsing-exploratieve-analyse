@@ -42,6 +42,7 @@ df_units = df_units[['unit_code_so', 'jaar', 'unit_code_SO_actief', 'schoolbestu
                     'aantal_studietrajecten', 'opgenomen_studiepunten', 'verworven_studiepunten', 'studierendement']]
 df_units = df_units.rename(
     columns={
+        'jaar': 'jaar_afgestudeerd_so',
         'llng_tobe': 'leerlingengroepen',
     }
 )

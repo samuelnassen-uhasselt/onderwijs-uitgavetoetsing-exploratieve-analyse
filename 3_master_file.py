@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 
-vpl_info = pd.read_excel('output/0_vestigingsplaatsen_volledig_nummer-24-25.xlsx')
-vpl_inschrijvingen = pd.read_excel('output/1a_inschrijvingen_vestigingsplaatsen_llngroepen_aantal-24-25.xlsx')
+vpl_info = pd.read_excel('output/0_vestigingsplaatsen_volledig_nummer.xlsx')
+vpl_inschrijvingen = pd.read_excel('output/1a_inschrijvingen_vestigingsplaatsen_llngroepen_aantal.xlsx')
 besturen = pd.read_excel('output/2_besturen.xlsx')
 bestuur_op_nummer = besturen.set_index('nummer_im')
 bestuur_op_naam = besturen.set_index('naam_im')
