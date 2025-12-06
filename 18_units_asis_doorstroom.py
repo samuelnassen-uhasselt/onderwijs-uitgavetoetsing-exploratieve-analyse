@@ -32,6 +32,7 @@ def get_sr(vps, jaar):
 
         except:
             continue
+    print(result)
     return pd.Series(result)
 
 
@@ -40,6 +41,7 @@ df_units[['aantal_studietrajecten', 'opgenomen_studiepunten', 'verworven_studiep
 df_units['studierendement'] = df_units['verworven_studiepunten']/df_units['opgenomen_studiepunten']
 df_units = df_units[['unit_code_so', 'jaar', 'unit_code_SO_actief', 'schoolbestuur', 'net', 'llng_tobe', 
                     'aantal_leerlingen', 'uren-leraar_asis', 'directeurs_asis', 
+                    'leerlingen_laatste_jaar', 'uren-leraar_laatste_jaar',
                     'aantal_studietrajecten', 'opgenomen_studiepunten', 'verworven_studiepunten', 'studierendement']]
 df_units = df_units.rename(
     columns={
@@ -50,4 +52,4 @@ df_units = df_units.rename(
 
 jaren = df_units['jaar_afgestudeerd_so'].drop_duplicates().tolist()
 
-# df_units.to_excel('18_units_asis_doorstroom.xlsx', index=False)
+df_units.to_excel('output/18_units_asis_doorstroom.xlsx', index=False)

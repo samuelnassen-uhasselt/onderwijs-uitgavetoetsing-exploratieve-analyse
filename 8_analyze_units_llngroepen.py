@@ -129,6 +129,29 @@ def get_directeurs(vps):
             result += 0
     return result
 
+def get_lln_laatste_jaar(vps):
+    result = 0
+    vps = vps.replace('SO_', '')
+    for vp in vps.split('_'):
+        try:
+            lln = df_vestigingen.loc[int(vp), 'lln_laatste_jaar']
+            if pd.notna(lln):
+                result += lln
+        except:
+            result += 0
+    return result
+
+def get_ul_laatste_jaar(vps):
+    result = 0
+    vps = vps.replace('SO_', '')
+    for vp in vps.split('_'):
+        try:
+            ul = df_vestigingen.loc[int(vp), 'ul_vp_laatste_jaar']
+            if pd.notna(ul):
+                result += ul
+        except:
+            result += 0
+    return result
 
 # De tabel is gebouwd op vestigingsplaatsen, dus er staan units meerdere keren in
 df_units = df_units[['unit_code_so', 'unit_code_SO_actief']].drop_duplicates()
@@ -173,5 +196,8 @@ df_units['directeur_diff'] = df_units['directeur_tobe'] - df_units['directeurs_a
 
 df_units['lln_per_dir_asis'] = df_units['aantal_leerlingen']/df_units['directeurs_asis']
 df_units['lln_per_dir_tobe'] = df_units['aantal_leerlingen']/df_units['directeur_tobe']
+
+df_units['leerlingen_laatste_jaar'] = df_units['unit_code_so'].apply(get_lln_laatste_jaar)
+df_units['uren-leraar_laatste_jaar'] = df_units['unit_code_so'].apply(get_ul_laatste_jaar)
 
 df_units.to_excel(f'output/jaren/{sys.argv[1]}/8a_analyse_units.xlsx', index=False)

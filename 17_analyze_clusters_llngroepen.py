@@ -37,7 +37,7 @@ def get_exploded_df(df, column_names, aantal_column):
 
 df_adres['llngr_aantallen'] = df_adres['leerlingengroepen'].apply(get_llngroepen_aantal)
 df_adres_exploded = get_exploded_df(df_adres, ['cluster', 'jaar'], 'llngr_aantallen')
-df_adres_exploded.to_excel('17a_analyse_adres_leerlingengroepen.xlsx', index=False)
+df_adres_exploded.to_excel('output/17a_analyse_adres_leerlingengroepen.xlsx', index=False)
 
 
 df_straal['llngr_aantallen'] = df_straal['leerlingengroepen'].apply(get_llngroepen_aantal)
