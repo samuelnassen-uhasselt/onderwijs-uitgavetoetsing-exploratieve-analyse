@@ -15,7 +15,6 @@ df_doorstroom_sr['vp_code'] = df_doorstroom_sr['Instellingscode instelling']*100
 df_doorstroom_sr.set_index(['vp_code', 'jaar'], inplace=True)
 df_doorstroom_sr = df_doorstroom_sr.sort_index()
 
-
 def get_sr(vps, jaar):
     vps = vps.replace('SO_', '')
     result = [0, 0, 0]
@@ -49,4 +48,6 @@ df_units = df_units.rename(
     }
 )
 
-df_units.to_excel('18_units_asis_doorstroom.xlsx', index=False)
+jaren = df_units['jaar_afgestudeerd_so'].drop_duplicates().tolist()
+
+# df_units.to_excel('18_units_asis_doorstroom.xlsx', index=False)

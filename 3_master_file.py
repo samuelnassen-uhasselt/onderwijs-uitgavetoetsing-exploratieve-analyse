@@ -52,9 +52,6 @@ def get_bestuurnaam(nummer, naam):
             return
     return naam
 
-def get_lambert(adres):
-    url = 'https://loc.geopunt.be/v4/location'
-
 # Merge en selecteer kolommen
 df_master = pd.merge(vpl_info, vpl_inschrijvingen, how='outer', on='vestigingsplaats')
 df_master['schoolnummer'] = df_master['vestigingsplaats'].astype(str).str[:-2].astype(int)

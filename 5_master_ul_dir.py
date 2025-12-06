@@ -1,7 +1,11 @@
 import pandas as pd
+import numpy as np
 import ast
 import requests
 import sys
+
+df_laatste_jaar = pd.read_excel(f'output/jaren/{sys.argv[1]}/1c_vaste_ul_laatste_jaar.xlsx').set_index('vestigingsplaats')
+df_laatste_jaar = df_laatste_jaar.sort_index()
 
 adres_hernoeming = {
     'Essen, Rouwmoer 7_B':'Essen, Rouwmoer 7B',
@@ -78,6 +82,29 @@ def ul_vp(llngroepen):
             result += value['uren-leraar']
         return result
 
+def lln_laatste_jaar(vp):
+    try:
+        llngr = df_laatste_jaar.loc[vp]
+        return np.sum(llngr['aantal_inschrijvingen'])
+    except:
+        return 0
+
+def ul_laatste_jaar(vp, ul_llngr):
+    result = 0
+    try:
+        llngr_lj = df_laatste_jaar.loc[[vp]]
+    except:
+        return 0
+    llngr_lj = llngr_lj.to_dict('records')
+    for llngr in llngr_lj:
+        tot_lln = ul_llngr[llngr['leerlingengroep']]['inschrijvingen']
+        lln_lj = llngr['aantal_inschrijvingen']
+        ul_vast_lj = llngr['vaste_ul']
+        ul_deg_vp = ul_llngr[llngr['leerlingengroep']]['uren-leraar']
+        ul_deg_lj = lln_lj*ul_deg_vp/tot_lln
+        result += (ul_vast_lj + ul_deg_lj)
+    return result
+
 def get_coords(adres):
     # Adressen die de api niet kan vinden
     if adres in adres_hernoeming.keys():
@@ -119,6 +146,8 @@ df[['lx', 'ly']] = df.apply(get_lambert, axis=1)
 df['directeur_vp'] = df['aantal_inschrijvingen_vp']/df['aantal_inschrijvingen_inst']
 df['ul_llngroepen'] = df.apply(lambda row: get_uren_leraar(row['leerlingengroepen_vp'], row['leerlingengroepen_inst']), axis=1)
 df['ul_vp'] = df['ul_llngroepen'].apply(ul_vp)
+df['lln_laatste_jaar'] = df.apply(lambda row: lln_laatste_jaar(row['vestigingsplaats']), axis=1)
+df['ul_vp_laatste_jaar'] = df.apply(lambda row: ul_laatste_jaar(row['vestigingsplaats'], row['ul_llngroepen']), axis=1)
 df['lln_per_dir'] = df['aantal_inschrijvingen_vp']/df['directeur_vp']
 df['ul_per_lln'] = df['ul_vp']/df['aantal_inschrijvingen_vp']
 
