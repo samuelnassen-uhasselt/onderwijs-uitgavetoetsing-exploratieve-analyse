@@ -1,0 +1,17 @@
+import pandas as pd
+from dea import dea_input_oriented_vrs
+
+df_units = pd.read_excel('output/18_units_asis_doorstroom.xlsx')
+df_units = df_units[df_units['aantal_studietrajecten'] > 10]
+df_units = df_units[df_units['leerlingen_laatste_jaar'] > 0]
+df_units = df_units[df_units['opgenomen_studiepunten'] > 0]
+df_units_2022 = df_units[df_units['jaar_afgestudeerd_so'] == '2022-2023'].copy()
+df_units_2022['ul_per_leerling_laatste'] =df_units_2022['uren-leraar_laatste_jaar']/df_units_2022['leerlingen_laatste_jaar']
+df_units_2022['doorstroom_verhouding'] = df_units_2022['aantal_studietrajecten']/df_units_2022['leerlingen_laatste_jaar']
+
+X = df_units_2022[['ul_per_leerling_laatste']].values
+Y = df_units_2022[['doorstroom_verhouding', 'studierendement']].values
+
+df_units_2022['efficiency_score'] = dea_input_oriented_vrs(X, Y)
+
+df_units_2022.to_excel('output/19a_dea_vrs.xlsx', index=False)
