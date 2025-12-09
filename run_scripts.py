@@ -8,15 +8,22 @@ jaren_folders = [f for f in os.listdir(folder)]
 # '3_master_file.py', '4_ul_dir_inschrijvingen_scholen.py', '5_master_ul_dir.py',
 # '6_zelfde_adres.py', '7_analyze_zelfde_adres.py', '8_analyze_units_llngroepen.py', '9_analyze_bestuur_net.py', 
 # '10_vergelijkingsanalyse.py', '11_analyse_clusters_vergelijkbaar.py', '12_sn_in_meerdere_hoofdstruct.py',
-# '13_straal.py', '14_analyze_straal.py', '15_analyze_net_leerlingengroepen.py'
+# '13_straal.py', '14_analyze_straal.py', '15_analyze_net_leerlingengroepen.py', 
 # ]
 scripts = [
-    '8_analyze_units_llngroepen.py'
+    
+]
+
+# others = [
+# '16_jaren_samen.py', '17_analyze_clusters_llngroepen.py', '18_units_asis_doorstroom.py', '19_dea.py'
+# ]
+others = [
+    '18_units_asis_doorstroom.py', '19_dea.py'
 ]
 
 for jaar in jaren_folders:
     for script in scripts:
         subprocess.run(['python', script, jaar])
 
-subprocess.run(['python', '16_jaren_samen.py', jaar])
-subprocess.run(['python', '18_units_asis_doorstroom.py', jaar])
+for script in others:
+    subprocess.run(['python', script])

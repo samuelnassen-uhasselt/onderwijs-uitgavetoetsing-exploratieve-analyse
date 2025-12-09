@@ -5,11 +5,12 @@ df_units = pd.read_excel('output/16d_units_jaren.xlsx')
 df_doorstroom_pg = pd.read_excel('Brondata/Doorstroom/UHasselt_doorstroomSR_dataaanvraag2025.xlsx', sheet_name='Participatiegraad')
 df_doorstroom_sr = pd.read_excel('Brondata/Doorstroom/UHasselt_doorstroomSR_dataaanvraag2025.xlsx', sheet_name='Studierendement')
 
-df_doorstroom_pg['jaar'] = df_doorstroom_pg['Schooljaar code'].astype(str) + '-' + (df_doorstroom_pg['Schooljaar code'] + 1).astype(str)
-df_doorstroom_pg['vp_code'] = df_doorstroom_pg['Instellingscode instelling']*100 + df_doorstroom_pg['Intern volgnummer vestigingsplaats']
-df_doorstroom_pg.set_index(['vp_code', 'jaar'], inplace=True)
-df_doorstroom_pg = df_doorstroom_pg.sort_index()
+# df_doorstroom_pg['jaar'] = df_doorstroom_pg['Schooljaar code'].astype(str) + '-' + (df_doorstroom_pg['Schooljaar code'] + 1).astype(str)
+# df_doorstroom_pg['vp_code'] = df_doorstroom_pg['Instellingscode instelling']*100 + df_doorstroom_pg['Intern volgnummer vestigingsplaats']
+# df_doorstroom_pg.set_index(['vp_code', 'jaar'], inplace=True)
+# df_doorstroom_pg = df_doorstroom_pg.sort_index()
 
+df_doorstroom_sr = df_doorstroom_sr[df_doorstroom_sr['Onderwijsvorm code'].isin(['ASO', 'TSO'])]
 df_doorstroom_sr['jaar'] = df_doorstroom_sr['Code schooljaar afstuderen SO'].astype(str) + '-' + (df_doorstroom_sr['Code schooljaar afstuderen SO'] + 1).astype(str)
 df_doorstroom_sr['vp_code'] = df_doorstroom_sr['Instellingscode instelling']*100 + df_doorstroom_sr['Intern volgnummer vestigingsplaats']
 df_doorstroom_sr.set_index(['vp_code', 'jaar'], inplace=True)
@@ -32,7 +33,6 @@ def get_sr(vps, jaar):
 
         except:
             continue
-    print(result)
     return pd.Series(result)
 
 

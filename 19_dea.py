@@ -1,5 +1,5 @@
 import pandas as pd
-from dea import dea_input_oriented_vrs
+import dea_implementaties as dea
 
 df_units = pd.read_excel('output/18_units_asis_doorstroom.xlsx')
 df_units = df_units[df_units['aantal_studietrajecten'] > 10]
@@ -12,6 +12,6 @@ df_units_2022['doorstroom_verhouding'] = df_units_2022['aantal_studietrajecten']
 X = df_units_2022[['ul_per_leerling_laatste']].values
 Y = df_units_2022[['doorstroom_verhouding', 'studierendement']].values
 
-df_units_2022['efficiency_score'] = dea_input_oriented_vrs(X, Y)
+df_units_2022['efficiency_score'] = dea.dea_input_oriented_vrs(X, Y)
 
-df_units_2022.to_excel('output/19a_dea_vrs.xlsx', index=False)
+df_units_2022.to_excel('output/19a_dea.xlsx', index=False)
