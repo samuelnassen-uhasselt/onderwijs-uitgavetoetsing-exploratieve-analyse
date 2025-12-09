@@ -21,10 +21,9 @@ def plot_ratio_analysis(X, Y, efficiency,
     school_ids: optional school identifiers
     """
     
-    # Calculate ratios (input/output)
-    # Lower ratio = better (less input per unit output)
-    ratio_1 = X[:, 0] / Y[:, 0]  # input / output1
-    ratio_2 = X[:, 0] / Y[:, 1]  # input / output2
+    # Calculate ratios
+    ratio_1 = Y[:, 0] / X[:, 0]
+    ratio_2 = Y[:, 1] / X[:, 0]
     
     # Create figure
     fig, ax = plt.subplots(figsize=(14, 10))
@@ -66,9 +65,9 @@ def plot_ratio_analysis(X, Y, efficiency,
     cbar.set_label('Efficiency Score', rotation=270, labelpad=20, fontsize=13)
     
     # Labels with interpretation
-    ax.set_xlabel(f'{input_label} / {output_labels[0]}\n(Lower = Better)', 
+    ax.set_xlabel(f'{output_labels[0]}/{input_label}', 
                  fontsize=13, fontweight='bold')
-    ax.set_ylabel(f'{input_label} / {output_labels[1]}\n(Lower = Better)', 
+    ax.set_ylabel(f'{output_labels[1]}/{input_label}', 
                  fontsize=13, fontweight='bold')
     ax.set_title(title, fontsize=15, fontweight='bold', pad=20)
     
@@ -112,8 +111,9 @@ def plot_ratio_analysis_interactive(X, Y, efficiency,
                                     school_ids=None):
     """Interactive version with hover information"""
     
-    ratio_1 = X[:, 0] / Y[:, 0]
-    ratio_2 = X[:, 0] / Y[:, 1]
+    # Calculate ratios
+    ratio_1 = Y[:, 0] / X[:, 0]
+    ratio_2 = Y[:, 1] / X[:, 0]
     
     if school_ids is None:
         school_ids = [f"Unit {i}" for i in range(len(X))]
@@ -139,8 +139,8 @@ def plot_ratio_analysis_interactive(X, Y, efficiency,
                      color_continuous_scale='RdYlGn',
                      title='DEA Ratio Analysis (Interactive)',
                      labels={
-                         'Ratio_1': f'{input_label}/{output_labels[0]}',
-                         'Ratio_2': f'{input_label}/{output_labels[1]}'
+                         'Ratio_1': f'{output_labels[0]}/{input_label}',
+                         'Ratio_2': f'{output_labels[1]}/{input_label}'
                      })
     
     
