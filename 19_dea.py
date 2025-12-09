@@ -14,9 +14,10 @@ df_units_2022['doorstroom_verhouding'] = df_units_2022['aantal_studietrajecten']
 X = df_units_2022[['ul_per_leerling_laatste']].values
 Y = df_units_2022[['doorstroom_verhouding', 'studierendement']].values
 
-df_units_2022['efficiency_score'] = dea.dea_input_oriented_vrs(X, Y)
+df_units_2022['efficiency_score_crs'] = dea.dea_input_oriented_crs(X, Y)
+df_units_2022['efficiency_score_vrs'] = dea.dea_input_oriented_vrs(X,Y)
 
-fig = dp.plot_ratio_analysis_interactive(X, Y, df_units_2022['efficiency_score'].values, 
+fig = dp.plot_ratio_analysis_interactive(X, Y, df_units_2022['efficiency_score_crs'].values, 
                               input_label='Uren-leraar per leerling',
                               output_labels=['Doorstroom per leerling', 'Studierendement'],
                               school_ids=df_units_2022['unit_code_so'].values)

@@ -30,7 +30,7 @@ def plot_ratio_analysis(X, Y, efficiency,
     fig, ax = plt.subplots(figsize=(14, 10))
     
     # Separate frontier
-    efficient_mask = efficiency == 1
+    efficient_mask = efficiency >= 0.97
     
     # Plot inefficient schools
     ax.scatter(ratio_1[~efficient_mask], 
@@ -126,7 +126,7 @@ def plot_ratio_analysis_interactive(X, Y, efficiency,
         input_label: X[:, 0],
         output_labels[0]: Y[:, 0],
         output_labels[1]: Y[:, 1],
-        'Status': ['Efficient' if e == 1 else 'Inefficient' for e in efficiency]
+        'Status': ['Efficient' if e >= 0.97 else 'Inefficient' for e in efficiency]
     })
     
     # Create figure
@@ -139,8 +139,8 @@ def plot_ratio_analysis_interactive(X, Y, efficiency,
                      color_continuous_scale='RdYlGn',
                      title='DEA Ratio Analysis (Interactive)',
                      labels={
-                         'Ratio_1': f'{input_label}/{output_labels[0]} (Lower=Better)',
-                         'Ratio_2': f'{input_label}/{output_labels[1]} (Lower=Better)'
+                         'Ratio_1': f'{input_label}/{output_labels[0]}',
+                         'Ratio_2': f'{input_label}/{output_labels[1]}'
                      })
     
     
