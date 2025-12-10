@@ -82,17 +82,21 @@ def ul_vp(llngroepen):
             result += value['uren-leraar']
         return result
 
-def lln_laatste_jaar(vp):
+def lln_laatste_jaar(vp, doorstroom):
     try:
         llngr = df_laatste_jaar.loc[vp]
+        if doorstroom:
+            llngr = llngr[llngr['leerlingengroep'].isin(['3e graad aso', '3e graad tso', '3e graad kso'])]
         return np.sum(llngr['aantal_inschrijvingen'])
     except:
         return 0
 
-def ul_laatste_jaar(vp, ul_llngr):
+def ul_laatste_jaar(vp, ul_llngr, doorstroom):
     result = 0
     try:
         llngr_lj = df_laatste_jaar.loc[[vp]]
+        if doorstroom:
+            llngr_lj = llngr_lj[llngr_lj['leerlingengroep'].isin(['3e graad aso', '3e graad tso', '3e graad kso'])]
     except:
         return 0
     llngr_lj = llngr_lj.to_dict('records')
@@ -144,10 +148,15 @@ df[['lx', 'ly']] = df.apply(get_lambert, axis=1)
 
 # Bereken de percentages
 df['directeur_vp'] = df['aantal_inschrijvingen_vp']/df['aantal_inschrijvingen_inst']
-df['ul_llngroepen'] = df.apply(lambda row: get_uren_leraar(row['leerlingengroepen_vp'], row['leerlingengroepen_inst']), axis=1)
+df['ul_llngroepen'] = df.apply(lambda row: get_uren_leraar(
+    row['leerlingengroepen_vp'], row['leerlingengroepen_inst']), axis=1)
 df['ul_vp'] = df['ul_llngroepen'].apply(ul_vp)
-df['lln_laatste_jaar'] = df.apply(lambda row: lln_laatste_jaar(row['vestigingsplaats']), axis=1)
-df['ul_vp_laatste_jaar'] = df.apply(lambda row: ul_laatste_jaar(row['vestigingsplaats'], row['ul_llngroepen']), axis=1)
+df['lln_laatste_jaar'] = df.apply(lambda row: lln_laatste_jaar(row['vestigingsplaats'], False), axis=1)
+df['ul_vp_laatste_jaar'] = df.apply(lambda row: ul_laatste_jaar(
+    row['vestigingsplaats'], row['ul_llngroepen'], False), axis=1)
+df['lln_laatste_jaar_doorstroom'] = df.apply(lambda row: lln_laatste_jaar(row['vestigingsplaats'], True), axis=1)
+df['ul_vp_laatste_jaar_doorstroom'] = df.apply(lambda row: ul_laatste_jaar(
+    row['vestigingsplaats'], row['ul_llngroepen'], True), axis=1)
 df['lln_per_dir'] = df['aantal_inschrijvingen_vp']/df['directeur_vp']
 df['ul_per_lln'] = df['ul_vp']/df['aantal_inschrijvingen_vp']
 
