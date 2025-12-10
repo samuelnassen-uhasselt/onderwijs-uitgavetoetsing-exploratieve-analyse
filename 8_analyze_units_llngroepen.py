@@ -129,24 +129,30 @@ def get_directeurs(vps):
             result += 0
     return result
 
-def get_lln_laatste_jaar(vps):
+def get_lln_laatste_jaar(vps, doorstroom):
     result = 0
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            lln = df_vestigingen.loc[int(vp), 'lln_laatste_jaar']
+            if not doorstroom:
+                lln = df_vestigingen.loc[int(vp), 'lln_laatste_jaar']
+            else:
+                lln = df_vestigingen.loc[int(vp), 'lln_laatste_jaar_doorstroom']
             if pd.notna(lln):
                 result += lln
         except:
             result += 0
     return result
 
-def get_ul_laatste_jaar(vps):
+def get_ul_laatste_jaar(vps, doorstroom):
     result = 0
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            ul = df_vestigingen.loc[int(vp), 'ul_vp_laatste_jaar']
+            if not doorstroom:
+                ul = df_vestigingen.loc[int(vp), 'ul_vp_laatste_jaar']
+            else:
+                ul = df_vestigingen.loc[int(vp), 'ul_vp_laatste_jaar_doorstroom']
             if pd.notna(ul):
                 result += ul
         except:
@@ -197,7 +203,12 @@ df_units['directeur_diff'] = df_units['directeur_tobe'] - df_units['directeurs_a
 df_units['lln_per_dir_asis'] = df_units['aantal_leerlingen']/df_units['directeurs_asis']
 df_units['lln_per_dir_tobe'] = df_units['aantal_leerlingen']/df_units['directeur_tobe']
 
-df_units['leerlingen_laatste_jaar'] = df_units['unit_code_so'].apply(get_lln_laatste_jaar)
-df_units['uren-leraar_laatste_jaar'] = df_units['unit_code_so'].apply(get_ul_laatste_jaar)
-
+df_units['leerlingen_laatste_jaar'] = df_units.apply(
+    lambda row: get_lln_laatste_jaar(row['unit_code_so'], False), axis=1)
+df_units['uren-leraar_laatste_jaar'] = df_units.apply(
+    lambda row: get_ul_laatste_jaar(row['unit_code_so'], False), axis=1)
+df_units['leerlingen_laatste_jaar_doorstroom'] = df_units.apply(
+    lambda row: get_lln_laatste_jaar(row['unit_code_so'], True), axis=1)
+df_units['uren-leraar_laatste_jaar_doorstroom'] = df_units.apply(
+    lambda row: get_ul_laatste_jaar(row['unit_code_so'], True), axis=1)
 df_units.to_excel(f'output/jaren/{sys.argv[1]}/8a_analyse_units.xlsx', index=False)
