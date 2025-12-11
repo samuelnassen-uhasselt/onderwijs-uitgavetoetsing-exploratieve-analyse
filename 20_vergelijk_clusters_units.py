@@ -21,11 +21,21 @@ df_clusters_100m = pd.read_excel('output/16b_analyse_jaren_100m.xlsx')
 df_clusters_100m = df_clusters_100m[['cluster', 'jaar', 'aantal_sn', 'llngroepen_diff']]
 df_clusters_100m['unit_code_so'] = df_clusters_100m.apply(lambda row: cluster_in_unit(row['cluster'], df_units['unit_code_so'].values), axis=1)
 df_clusters_100m['is_in_unit'] = df_clusters_100m['unit_code_so'].apply(is_in_unit)
+df_clusters_100m = df_clusters_100m.rename(
+    columns={
+        'llngroepen_diff': 'gesplitste_leerlingengroepen'
+    }
+)
 
 df_clusters_adres = pd.read_excel('output/16a_analyse_jaren_zelfde_adres.xlsx')
 df_clusters_adres = df_clusters_adres[['cluster', 'jaar', 'aantal_sn', 'llngroepen_diff']]
 df_clusters_adres['unit_code_so'] = df_clusters_adres.apply(lambda row: cluster_in_unit(row['cluster'], df_units['unit_code_so'].values), axis=1)
 df_clusters_adres['is_in_unit'] = df_clusters_adres['unit_code_so'].apply(is_in_unit)
+df_clusters_adres = df_clusters_adres.rename(
+    columns={
+        'llngroepen_diff': 'gesplitste_leerlingengroepen'
+    }
+)
 
 with pd.ExcelWriter('output/20_clusters_in_units.xlsx') as writer:
     df_clusters_100m.to_excel(writer, sheet_name='STRAAL 100M', index=False)
