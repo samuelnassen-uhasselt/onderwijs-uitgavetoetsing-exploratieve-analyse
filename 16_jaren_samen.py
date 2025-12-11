@@ -17,23 +17,23 @@ data_units = []
 for jaar in jaren_folders:
     file_path_zelfde_adres = os.path.join(folder, jaar, file_zelfde_adres)
     df_zelfde_adres = pd.read_excel(file_path_zelfde_adres)
-    df_zelfde_adres['jaar'] = jaar
+    df_zelfde_adres['jaar'] = str(jaar)
     data_zelfde_adres.append(df_zelfde_adres)
 
     file_path_100m = os.path.join(folder, jaar, file_100m)
     df_100m = pd.read_excel(file_path_100m)
-    df_100m['jaar'] = jaar
+    df_100m['jaar'] = str(jaar)
     data_100m.append(df_100m)
 
     file_path_master = os.path.join(folder, jaar, file_master)
     df_master = pd.read_excel(file_path_master)
-    df_master['jaar'] = jaar
+    df_master['jaar'] = str(jaar)
     data_master.append(df_master)
 
     file_path_units = os.path.join(folder, jaar, file_units)
     try:
         df_units = pd.read_excel(file_path_units)
-        df_units['jaar'] = jaar
+        df_units['jaar'] = str(jaar)
         data_units.append(df_units)
     except:
         continue

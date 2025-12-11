@@ -11,14 +11,14 @@ jaren_folders = [f for f in os.listdir(folder)]
 # '13_straal.py', '14_analyze_straal.py', '15_analyze_net_leerlingengroepen.py', 
 # ]
 scripts = [
-    '1_inschrijvingen_vestigingen.py', '5_master_ul_dir.py', '8_analyze_units_llngroepen.py'
+    
 ]
 
 # others = [
 # '16_jaren_samen.py', '17_analyze_clusters_llngroepen.py', '18_units_asis_doorstroom.py', '19_dea.py'
 # ]
 others = [
-    
+    '16_jaren_samen.py', '18_units_asis_doorstroom.py'
 ]
 
 for jaar in jaren_folders:
