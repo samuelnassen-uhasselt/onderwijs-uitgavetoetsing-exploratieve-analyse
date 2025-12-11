@@ -6,14 +6,15 @@ import matplotlib.pyplot as plt
 
 df_units = pd.read_excel('output/18_units_dea_master.xlsx')
 df_units = df_units[df_units['aantal_studietrajecten'] > 10]
-df_units = df_units[df_units['leerlingen_laatste_jaar'] > 0]
+df_units = df_units[df_units['leerlingen_laatste_jaar_doorstroom'] > 0]
 df_units = df_units[df_units['opgenomen_studiepunten'] > 0]
 df_units_2022 = df_units[df_units['jaar_afgestudeerd_so'] == '2022-2023'].copy()
-df_units_2022['ul_per_leerling_laatste'] =df_units_2022['uren-leraar_laatste_jaar']/df_units_2022['leerlingen_laatste_jaar']
+df_units_2022['ul_per_leerling_laatste_doorstroom'] = df_units_2022[
+    'uren-leraar_laatste_jaar_doorstroom']/df_units_2022['leerlingen_laatste_jaar_doorstroom']
 
 input = {
-    'kolom': 'ul_per_leerling_laatste',
-    'label' : 'Uren-leraar per leerling'
+    'kolom': 'ul_per_leerling_laatste_doorstroom',
+    'label' : 'Uren-leraar per leerling - Doorstroom'
 }
 
 output = {

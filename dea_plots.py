@@ -4,6 +4,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 from scipy.spatial import ConvexHull
+from scipy.optimize import curve_fit
 
 def plot_ratio_analysis(X, Y, efficiency, 
                         input_label="Input",
@@ -181,17 +182,23 @@ def plot_in_out_analysis_interactive(X, Y, efficiency,
         'Status': ['Efficient' if e >= 0.97 else 'Inefficient' for e in efficiency]
     })
 
-    x = X.flatten()
-    y = Y.flatten()
+    
+    # Define functions
+    def linear(x, a, b):
+        return a * x + b
 
-    # Fit polynomial
-    degree = 4
-    coefficients = np.polyfit(x, y, degree)
-    poly_function = np.poly1d(coefficients)
+    def logarithmic(x, a, b):
+        return a * np.log(x + 1) + b  # +1 to avoid log(0)
 
-    # Generate smooth curve for plotting
-    x_smooth = np.linspace(x.min(), x.max(), 100)
-    y_smooth = poly_function(x_smooth)
+    def exponential(x, a, b, c):
+        return a * np.exp(b * x) + c
+
+    def power(x, a, b, c):
+        return a * (x**b) + c
+
+    def quadratic(x, a, b, c):
+        return a * x**2 + b * x + c
+
 
     # Convex Hull for Efficiency Frontier
     points = np.column_stack([X, Y])
@@ -227,15 +234,6 @@ def plot_in_out_analysis_interactive(X, Y, efficiency,
                          'Output': f'{output_label}'
                      })
 
-    # Draw polynomial
-    fig.add_trace(go.Scatter(
-        x=x_smooth,
-        y=y_smooth,
-        mode='lines',
-        name=f'Polynomial Fit (degree {degree})',
-        line=dict(color='gray', width=1)
-    ))
-
     # Draw frontier
     fig.add_trace(go.Scatter(
         x=hull_vertices[:, 0],
@@ -245,6 +243,46 @@ def plot_in_out_analysis_interactive(X, Y, efficiency,
         line=dict(color='blue', width=2),
     ))
     
+
+    # Draw functions
+
+    # Remove NaN and infinite values
+    mask = np.isfinite(X) & np.isfinite(Y)
+    X_clean = X[mask]
+    Y_clean = Y[mask]
+
+    x_smooth = np.linspace(X.min(), X.max(), 100)
+    colors = ['red', 'green', 'orange', 'purple', 'brown']
+
+    functions = [
+        ('Linear', linear),
+        ('Logarithmic', logarithmic),
+        ('Exponential', exponential),
+        ('Power', power),
+        ('Quadratic', quadratic)
+    ]
+
+    for (name, func), color in zip(functions, colors):
+        try:
+            params, _ = curve_fit(func, X_clean, Y_clean, maxfev=10000)
+            y_smooth = func(x_smooth, *params)
+            y_pred = func(X, *params)
+            
+            # R²
+            r2 = 1 - (np.sum((Y - y_pred)**2) / np.sum((Y - np.mean(Y))**2))
+            
+            fig.add_trace(go.Scatter(
+                x=x_smooth,
+                y=y_smooth,
+                mode='lines',
+                name=f'{name} (R²={r2:.3f})',
+                line=dict(width=2, color=color),
+                visible='legendonly' if name != 'Linear' else True
+            ))
+        except Exception as e:
+            print(f"Could not fit {name}: {e}")
+
+
     fig.update_layout(
         width=1100,
         height=800,
