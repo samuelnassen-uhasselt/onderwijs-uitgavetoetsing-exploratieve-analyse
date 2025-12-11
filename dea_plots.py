@@ -3,6 +3,7 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
+from scipy.spatial import ConvexHull
 
 def plot_ratio_analysis(X, Y, efficiency, 
                         input_label="Input",
@@ -104,7 +105,6 @@ def plot_ratio_analysis(X, Y, efficiency,
     
     return fig, ax, ratio_1, ratio_2
 
-
 def plot_ratio_analysis_interactive(X, Y, efficiency, 
                                     input_label="Input",
                                     output_labels=["Output 1", "Output 2"],
@@ -161,6 +161,101 @@ def plot_ratio_analysis_interactive(X, Y, efficiency,
         height=800,
         font=dict(size=12),
         hovermode='closest'
+    )
+    
+    return fig
+
+def plot_in_out_analysis_interactive(X, Y, efficiency, 
+                                    input_label="Input",
+                                    output_label="Output",
+                                    school_ids=None):
+    
+    if school_ids is None:
+        school_ids = [f"Unit {i}" for i in range(len(X))]
+    
+    df_plot = pd.DataFrame({
+        'School': school_ids,
+        'Efficiency': efficiency,
+        input_label: X[:, 0],
+        output_label: Y[:, 0],
+        'Status': ['Efficient' if e >= 0.97 else 'Inefficient' for e in efficiency]
+    })
+
+    x = X.flatten()
+    y = Y.flatten()
+
+    # Fit polynomial
+    degree = 4
+    coefficients = np.polyfit(x, y, degree)
+    poly_function = np.poly1d(coefficients)
+
+    # Generate smooth curve for plotting
+    x_smooth = np.linspace(x.min(), x.max(), 100)
+    y_smooth = poly_function(x_smooth)
+
+    # Convex Hull for Efficiency Frontier
+    points = np.column_stack([X, Y])
+    border_points = [[X.min(), 0], [X.max(), Y.max()]]
+    points = np.vstack([points, border_points])
+    hull = ConvexHull(points)
+
+    # Get hull vertices
+    hull_vertices = points[hull.vertices]
+
+    # Remove bottom part of hull
+    start = 0
+    while not np.array_equal(hull_vertices[start],[X.min(), 0]):
+        start += 1
+    start += 1
+
+    while not np.array_equal(hull_vertices[start],[X.max(), Y.max()]):
+        hull_vertices = np.delete(hull_vertices, start, axis=0)
+
+    while not np.array_equal(hull_vertices[0],[X.max(), Y.max()]):
+        hull_vertices = np.roll(hull_vertices, 1, axis=0)
+
+    # Create figure
+    fig = px.scatter(df_plot,
+                     x=input_label,
+                     y=output_label,
+                     color='Efficiency',
+                     hover_data=['School', input_label, output_label, 'Efficiency'],
+                     color_continuous_scale='RdYlGn',
+                     title='DEA Ratio Analysis (Interactive)',
+                     labels={
+                         'Input': f'{input_label}',
+                         'Output': f'{output_label}'
+                     })
+
+    # Draw polynomial
+    fig.add_trace(go.Scatter(
+        x=x_smooth,
+        y=y_smooth,
+        mode='lines',
+        name=f'Polynomial Fit (degree {degree})',
+        line=dict(color='gray', width=1)
+    ))
+
+    # Draw frontier
+    fig.add_trace(go.Scatter(
+        x=hull_vertices[:, 0],
+        y=hull_vertices[:, 1],
+        mode='lines',
+        name='Efficiency Frontier',
+        line=dict(color='blue', width=2),
+    ))
+    
+    fig.update_layout(
+        width=1100,
+        height=800,
+        font=dict(size=12),
+        hovermode='closest',
+        legend=dict(
+            x=0.98,
+            y=0.02,
+            xanchor='right',
+            yanchor='bottom'
+        )
     )
     
     return fig
