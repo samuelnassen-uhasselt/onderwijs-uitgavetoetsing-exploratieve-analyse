@@ -221,7 +221,7 @@ def plot_in_out_analysis_interactive(X, Y, efficiency,
                      color='Efficiency',
                      hover_data=['School', input_label, output_label, 'Efficiency'],
                      color_continuous_scale='RdYlGn',
-                     title='DEA Ratio Analysis (Interactive)',
+                     title='DEA Input/Output Analysis',
                      labels={
                          'Input': f'{input_label}',
                          'Output': f'{output_label}'
