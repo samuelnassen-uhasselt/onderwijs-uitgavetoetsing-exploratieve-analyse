@@ -38,7 +38,16 @@ def get_llngroep_inst_for_vestingsplaatsen(vps):
             llngroep = df_vp_index.loc[int(vp), 'ul_llngroepen']
             if pd.notna(llngroep):
                 llngroep = ast.literal_eval(llngroep)
-            result[vp] = (llngroep)
+            inst = vp[:-2]
+            if inst not in result.keys():
+                result[inst] = {}
+            for groep, info in llngroep.items():
+                if groep not in result[inst]:
+                    result[inst][groep] = {}
+                    result[inst][groep]['inschrijvingen'] = 0
+                    result[inst][groep]['uren-leraar'] = 0
+                result[inst][groep]['inschrijvingen'] += info['inschrijvingen']
+                result[inst][groep]['uren-leraar'] += info['uren-leraar']
         except:
             result[vp] = np.nan
 

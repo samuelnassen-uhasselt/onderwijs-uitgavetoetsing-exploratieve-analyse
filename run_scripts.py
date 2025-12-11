@@ -15,7 +15,8 @@ scripts = [
 ]
 
 # others = [
-# '16_jaren_samen.py', '17_analyze_clusters_llngroepen.py', '18_units_asis_doorstroom.py', '19_dea.py'
+# '16_jaren_samen.py', '17_analyze_clusters_llngroepen.py', '18_units_dea_master.py', '19_dea.py',
+# '20_vergelijk_clusters_units.py'
 # ]
 others = [
     '16_jaren_samen.py', '18_units_asis_doorstroom.py'
