@@ -11,7 +11,7 @@ jaren_folders = [f for f in os.listdir(folder)]
 # '13_straal.py', '14_analyze_straal.py', '15_analyze_net_leerlingengroepen.py', 
 # ]
 scripts = [
-    '14_analyze_straal.py'
+    '8_analyze_units_llngroepen.py', '9_analyze_bestuur_net.py',
 ]
 
 # others = [
@@ -19,12 +19,14 @@ scripts = [
 # '20_vergelijk_clusters_units.py'
 # ]
 others = [
-    '16_jaren_samen.py', '20_vergelijk_clusters_units.py'
+    '16_jaren_samen.py', '18_units_dea_master.py',
 ]
 
 for jaar in jaren_folders:
     for script in scripts:
         subprocess.run(['python', script, jaar])
+        print(f'Finished running {script} for {jaar}.')
 
 for script in others:
     subprocess.run(['python', script])
+    print(f'Finished running {script}.')

@@ -96,7 +96,7 @@ def get_vaste_ul(vps):
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            vul = df_vestigingen.loc[int(vp), 'vaste_ul']
+            vul = df_vestigingen.loc[int(vp), 'vaste_ul_vp']
             if pd.notna(vul):
                 result += vul
         except:

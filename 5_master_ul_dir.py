@@ -4,8 +4,8 @@ import ast
 import requests
 import sys
 
-df_laatste_jaar = pd.read_excel(f'output/jaren/{sys.argv[1]}/1c_vaste_ul_laatste_jaar.xlsx').set_index('vestigingsplaats')
-df_laatste_jaar = df_laatste_jaar.sort_index()
+df_laatste_jaar = pd.read_excel(f'output/jaren/{sys.argv[1]}/1c_vaste_ul_laatste_jaar.xlsx')
+df_laatste_jaar.set_index('vestigingsplaats', inplace=True)
 
 adres_hernoeming = {
     'Essen, Rouwmoer 7_B':'Essen, Rouwmoer 7B',
@@ -84,7 +84,7 @@ def ul_vp(llngroepen):
 
 def lln_laatste_jaar(vp, doorstroom):
     try:
-        llngr = df_laatste_jaar.loc[vp]
+        llngr = df_laatste_jaar.loc[[vp]]
         if doorstroom:
             llngr = llngr[llngr['leerlingengroep'].isin(['3e graad aso', '3e graad tso', '3e graad kso'])]
         return np.sum(llngr['aantal_inschrijvingen'])
