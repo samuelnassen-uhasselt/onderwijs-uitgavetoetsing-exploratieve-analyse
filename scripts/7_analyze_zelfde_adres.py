@@ -4,10 +4,10 @@ import numpy as np
 import degressieve_ul_llngroepen as dul
 import sys
 
-df_clusters = pd.read_excel(f'output/jaren/{sys.argv[1]}/6b_clusters_zelfde_adres_en_bestuur.xlsx')
+df_clusters = pd.read_excel(f'output/jaren/{sys.argv[1]}/6_zelfde_adres.xlsx', sheet_name='Clusters')
 df_vestigingen = pd.read_excel(f'output/jaren/{sys.argv[1]}/5_master_ul_dir.xlsx')
 df_vp_index = df_vestigingen.set_index('vestigingsplaats')
-df_inschrijvingen_adres = pd.read_excel(f'output/jaren/{sys.argv[1]}/1a_inschrijvingen_vestigingsplaatsen_llngroepen_aantal.xlsx')
+df_inschrijvingen_adres = pd.read_excel(f'output/jaren/{sys.argv[1]}/1_inschrijvingen_vestigingen.xlsx', sheet_name='Leerlingengroepen met VUL')
 df_inschrijvingen_index = df_inschrijvingen_adres.set_index('vestigingsplaats')
 
 def get_adres(vps):

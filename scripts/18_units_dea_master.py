@@ -3,13 +3,13 @@ import numpy as np
 import ast
 import os
 
-df_units = pd.read_excel('output/16d_units_jaren.xlsx')
+df_units = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Units')
 df_doorstroom_pg = pd.read_excel('Brondata/Doorstroom/UHasselt_doorstroomSR_dataaanvraag2025.xlsx', sheet_name='Participatiegraad')
 df_doorstroom_sr = pd.read_excel('Brondata/Doorstroom/UHasselt_doorstroomSR_dataaanvraag2025.xlsx', sheet_name='Studierendement')
 df_sb = pd.read_excel('Brondata/Studiebewijzen/20251112-spending review UHasselt.xlsx', sheet_name='SB')
 df_oki = pd.read_excel('Brondata/Studiebewijzen/20251112-spending review UHasselt.xlsx', sheet_name='OKI')
 df_vsv = pd.read_excel('Brondata/Studiebewijzen/20251112-spending review UHasselt.xlsx', sheet_name='VSV')
-df_master = pd.read_excel('output/16c_master_jaren.xlsx')
+df_master = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Master')
 df_master.set_index(['vestigingsplaats', 'jaar'], inplace=True)
 
 modulair_dfs = {}

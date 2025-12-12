@@ -3,7 +3,7 @@ import numpy as np
 import sys
 
 vpl_info = pd.read_excel(f'output/jaren/{sys.argv[1]}/0_vestigingsplaatsen_volledig_nummer.xlsx')
-vpl_inschrijvingen = pd.read_excel(f'output/jaren/{sys.argv[1]}/1a_inschrijvingen_vestigingsplaatsen_llngroepen_aantal.xlsx')
+vpl_inschrijvingen = pd.read_excel(f'output/jaren/{sys.argv[1]}/1_inschrijvingen_vestigingen.xlsx', sheet_name='Leerlingengroepen met VUL')
 besturen = pd.read_excel(f'output/jaren/{sys.argv[1]}/2_besturen.xlsx')
 bestuur_op_nummer = besturen.set_index('nummer_im')
 bestuur_op_naam = besturen.set_index('naam_im')

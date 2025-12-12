@@ -47,15 +47,12 @@ def voeg_tobe_llngr_samen(tobe, vast):
     
     return result
 
-df = pd.read_excel(f'output/jaren/{sys.argv[1]}/8a_analyse_units.xlsx')
+df = pd.read_excel(f'output/jaren/{sys.argv[1]}/8_analyse_units.xlsx', sheet_name='Analyse')
 
 df = df[['unit_code_so', 'unit_code_SO_actief', 'net', 'llng_asis', 'llng_tobe', 'llngroep_ul_vast']]
 
 df['leerlingengroepen_asis'] = df.apply(lambda row: voeg_asis_llngr_samen(row['llng_asis'], row['llngroep_ul_vast']), axis=1)
 df['leerlingengroepen_tobe'] = df.apply(lambda row: voeg_tobe_llngr_samen(row['llng_tobe'], row['llngroep_ul_vast']), axis=1)
-
-df.to_excel(f'output/jaren/{sys.argv[1]}/15b_unit_net_llngroepen.xlsx', index=False)
-
 
 rows = []
 for idx, row in df.iterrows():
@@ -79,4 +76,4 @@ for idx, row in df.iterrows():
 
 df_exploded = pd.DataFrame(rows)
 
-df_exploded.to_excel(f'output/jaren/{sys.argv[1]}/15a_analyse_net_llngroepen.xlsx', index=False)
+df_exploded.to_excel(f'output/jaren/{sys.argv[1]}/15_analyse_net_llngroepen.xlsx', index=False)

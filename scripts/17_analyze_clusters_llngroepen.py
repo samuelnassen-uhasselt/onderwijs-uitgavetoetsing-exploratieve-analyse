@@ -2,8 +2,8 @@ import pandas as pd
 import ast
 import re
 
-df_adres = pd.read_excel('output/16a_analyse_jaren_zelfde_adres.xlsx')
-df_straal = pd.read_excel('output/16b_analyse_jaren_100m.xlsx')
+df_adres = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Adres')
+df_straal = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Straal 100m')
 
 def get_llngroepen_aantal(llngroepen):
     result = {}
@@ -37,9 +37,12 @@ def get_exploded_df(df, column_names, aantal_column):
 
 df_adres['llngr_aantallen'] = df_adres['leerlingengroepen'].apply(get_llngroepen_aantal)
 df_adres_exploded = get_exploded_df(df_adres, ['cluster', 'jaar'], 'llngr_aantallen')
-df_adres_exploded.to_excel('output/17a_analyse_adres_leerlingengroepen.xlsx', index=False)
 
 
 df_straal['llngr_aantallen'] = df_straal['leerlingengroepen'].apply(get_llngroepen_aantal)
 df_straal_exploded = get_exploded_df(df_straal, ['cluster', 'jaar'], 'llngr_aantallen')
-df_straal_exploded.to_excel('output/17b_analyse_straal_100m_leerlingengroepen.xlsx', index=False)
+
+
+with pd.ExcelWriter('output/17_analyse_clusters_leerlingengroepen.xlsx') as writer:
+    df_straal_exploded.to_excel(writer, sheet_name='Straal 100m', index=False)
+    df_adres_exploded.to_excel(writer, sheet_name='Adres', index=False)

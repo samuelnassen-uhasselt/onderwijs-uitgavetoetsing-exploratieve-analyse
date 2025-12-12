@@ -181,7 +181,6 @@ df_units['bso eind'] = df_units['leerlingengroepen'].apply(lambda llng: '3e graa
 df_eindes = df_units.groupby(['aso eind', 'tso eind', 'bso eind'])['unit_code_so'].count().reset_index().rename(columns={
     'unit_code_so': 'aantal units'
 })
-df_eindes.to_excel(f'output/jaren/{sys.argv[1]}/8b_eindes_aantal_units.xlsx', index=False)
 
 # Vaste uren-leraar leerlingengroepen
 df_units['llngroep_ul_vast'] = df_units['unit_code_so'].apply(get_llngroep_vul)
@@ -211,4 +210,9 @@ df_units['leerlingen_laatste_jaar_doorstroom'] = df_units.apply(
     lambda row: get_lln_laatste_jaar(row['unit_code_so'], True), axis=1)
 df_units['uren-leraar_laatste_jaar_doorstroom'] = df_units.apply(
     lambda row: get_ul_laatste_jaar(row['unit_code_so'], True), axis=1)
-df_units.to_excel(f'output/jaren/{sys.argv[1]}/8a_analyse_units.xlsx', index=False)
+
+
+
+with pd.ExcelWriter(f'output/jaren/{sys.argv[1]}/8_analyse_units.xlsx') as writer:
+    df_units.to_excel(writer, sheet_name='Analyse', index=False)
+    df_eindes.to_excel(writer, sheet_name='Eindes', index=False)

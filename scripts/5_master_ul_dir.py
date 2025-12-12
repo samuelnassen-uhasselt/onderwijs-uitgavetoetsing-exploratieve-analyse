@@ -4,7 +4,7 @@ import ast
 import requests
 import sys
 
-df_laatste_jaar = pd.read_excel(f'output/jaren/{sys.argv[1]}/1c_vaste_ul_laatste_jaar.xlsx')
+df_laatste_jaar = pd.read_excel(f'output/jaren/{sys.argv[1]}/1_inschrijvingen_vestigingen.xlsx', sheet_name='Laatste Jaar')
 df_laatste_jaar.set_index('vestigingsplaats', inplace=True)
 
 adres_hernoeming = {
