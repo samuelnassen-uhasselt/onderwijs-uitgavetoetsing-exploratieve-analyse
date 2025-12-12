@@ -1,8 +1,20 @@
 import os
+import re
 import subprocess
 
-folder = 'output/jaren'
-jaren_folders = [f for f in os.listdir(folder)]
+folder = './output/jaren'
+os.makedirs(folder, exist_ok=True)
+
+pattern = r'(\d{4}-\d{4})'
+
+jaren = []
+for filename in os.listdir('./Brondata/Inschrijvingen'):
+    match = re.search(pattern, filename)
+    if match:
+        jaar_inschr = match.group(1)
+        os.makedirs(f'./output/jaren/{jaar_inschr}', exist_ok=True)
+        jaren.append(jaar_inschr)
+
 # scripts = [
 # '0_vestigingsplaatsen_nummer.py', '1_inschrijvingen_vestigingen.py', '2_schoolbesturen.py',
 # '3_master_file.py', '4_ul_dir_inschrijvingen_scholen.py', '5_master_ul_dir.py',
@@ -22,7 +34,8 @@ others = [
     '16_jaren_samen.py', '18_units_dea_master.py',
 ]
 
-for jaar in jaren_folders:
+
+for jaar in jaren:
     for script in scripts:
         subprocess.run(['python', f'scripts/{script}', jaar])
         print(f'Finished running {script} for {jaar}.')
