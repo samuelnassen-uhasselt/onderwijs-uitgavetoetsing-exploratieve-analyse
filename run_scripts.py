@@ -24,9 +24,9 @@ others = [
 
 for jaar in jaren_folders:
     for script in scripts:
-        subprocess.run(['python', script, jaar])
+        subprocess.run(['python', f'scripts/{script}', jaar])
         print(f'Finished running {script} for {jaar}.')
 
 for script in others:
-    subprocess.run(['python', script])
+    subprocess.run(['python', f'scripts/{script}'])
     print(f'Finished running {script}.')

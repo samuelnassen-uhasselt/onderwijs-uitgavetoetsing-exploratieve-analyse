@@ -1,8 +1,8 @@
 import pandas as pd
 
-ul_tabel = pd.read_excel('uren-leraar-structuuronderdelen.xlsx', sheet_name='NA MODERNISERING').set_index(
+ul_tabel = pd.read_excel('Brondata/uren-leraar-structuuronderdelen.xlsx', sheet_name='NA MODERNISERING').set_index(
     ['structuuronderdeel', 'Graad', 'Onderwijsvorm']).sort_index()
-ul_tabel_voor = pd.read_excel('uren-leraar-structuuronderdelen.xlsx', sheet_name='VOOR MODERNISERING').set_index(
+ul_tabel_voor = pd.read_excel('Brondata/uren-leraar-structuuronderdelen.xlsx', sheet_name='VOOR MODERNISERING').set_index(
     ['structuuronderdeel', 'Onderwijsvorm']).sort_index()
 
 stdr_mapping = {

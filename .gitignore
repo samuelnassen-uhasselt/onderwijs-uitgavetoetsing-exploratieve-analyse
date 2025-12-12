@@ -1,2 +1,3 @@
 Brondata/**/*.xlsx
 output/**/*.xlsx
+!Brondata/uren-leraar-structuuronderdelen.xlsx
