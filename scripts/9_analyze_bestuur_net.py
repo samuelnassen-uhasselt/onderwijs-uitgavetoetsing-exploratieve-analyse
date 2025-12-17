@@ -22,7 +22,13 @@ df_bestuur_units = df_units_met_inschrijvingen.groupby('schoolbestuur').agg(
     ul_asis = ('ul_asis', 'sum'),
     ul_tobe = ('ul_tobe', 'sum'),
     directeur_asis = ('directeurs_asis', 'sum'),
-    directeur_tobe = ('directeur_tobe', 'sum')
+    directeur_tobe = ('directeur_tobe', 'sum'),
+    leerlingen_laatste_jaar = ('leerlingen_laatste_jaar', 'sum'),
+    ul_laatste_jaar_asis = ('uren-leraar_laatste_jaar', 'sum'),
+    dir_laatste_jaar_asis = ('directeurs_laatste_jaar', 'sum'),
+    leerlingen_laatste_jaar_aso = ('leerlingen_laatste_jaar_aso', 'sum'),
+    ul_laatste_jaar_aso_asis = ('uren-leraar_laatste_jaar_aso', 'sum'),
+    dir_laatste_jaar_aso_asis = ('directeurs_laatste_jaar_aso', 'sum'),
 ).reset_index()
 
 # Voeg as-is en to-be samen en bereken verschillen
@@ -30,7 +36,9 @@ df_bestuur = pd.merge(df_bestuur_master, df_bestuur_units, how='outer', on='scho
 df_bestuur['ul_diff'] = df_bestuur['ul_tobe'] - df_bestuur['ul_asis']
 df_bestuur['directeur_diff'] = df_bestuur['directeur_tobe'] - df_bestuur['directeur_asis']
 df_bestuur = df_bestuur[['schoolbestuur', 'instellingen', 'units', 'aantal_leerlingen', 'ul_vast', 
-                         'ul_asis', 'ul_tobe', 'ul_diff', 'directeur_asis', 'directeur_tobe', 'directeur_diff']]
+                         'ul_asis', 'ul_tobe', 'ul_diff', 'directeur_asis', 'directeur_tobe', 'directeur_diff',
+                         'leerlingen_laatste_jaar', 'ul_laatste_jaar_asis', 'dir_laatste_jaar_asis',
+                         'leerlingen_laatste_jaar_aso', 'ul_laatste_jaar_aso_asis', 'dir_laatste_jaar_aso_asis',]]
 
 df_bestuur['ul_per_lln_asis'] = (df_bestuur['ul_asis'] + df_bestuur['ul_vast'])/df_bestuur['aantal_leerlingen']
 df_bestuur['ul_per_lln_tobe'] = (df_bestuur['ul_tobe'] + df_bestuur['ul_vast'])/df_bestuur['aantal_leerlingen']

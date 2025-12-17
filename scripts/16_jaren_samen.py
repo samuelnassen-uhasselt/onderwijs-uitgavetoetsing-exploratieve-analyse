@@ -8,11 +8,13 @@ file_zelfde_adres = '7_analyse_clusters_zelfde_adres.xlsx'
 file_100m = '14_analyse_clusters_straal_100m.xlsx'
 file_master = '5_master_ul_dir.xlsx'
 file_units = '8_analyse_units.xlsx'
+file_bestuur = '9_analyse_bestuur_net.xlsx'
 
 data_zelfde_adres = []
 data_100m = []
 data_master = []
 data_units = []
+data_bestuur = []
 
 for jaar in jaren_folders:
     file_path_zelfde_adres = os.path.join(folder, jaar, file_zelfde_adres)
@@ -38,10 +40,19 @@ for jaar in jaren_folders:
     except:
         continue
 
+    file_path_bestuur = os.path.join(folder, jaar, file_bestuur)
+    try:
+        df_bestuur = pd.read_excel(file_path_bestuur, sheet_name='BESTUUR')
+        df_bestuur['jaar'] = str(jaar)
+        data_bestuur.append(df_bestuur)
+    except:
+        continue
+
 df_alles_zelfde_adres = pd.concat(data_zelfde_adres, ignore_index=True)
 df_alles_100m = pd.concat(data_100m, ignore_index=True)
 df_alles_master = pd.concat(data_master, ignore_index=True)
 df_alles_units = pd.concat(data_units, ignore_index=True)
+df_alles_bestuur = pd.concat(data_bestuur, ignore_index=True)
 
 
 with pd.ExcelWriter('output/16_jaren_samen.xlsx') as writer:
@@ -49,3 +60,4 @@ with pd.ExcelWriter('output/16_jaren_samen.xlsx') as writer:
     df_alles_zelfde_adres.to_excel(writer, sheet_name='Adres', index=False)
     df_alles_100m.to_excel(writer, sheet_name='Straal 100m', index=False)
     df_alles_units.to_excel(writer, sheet_name='Units', index=False)
+    df_alles_bestuur.to_excel(writer, sheet_name='Bestuur', index=False)
