@@ -129,30 +129,45 @@ def get_directeurs(vps):
             result += 0
     return result
 
-def get_lln_laatste_jaar(vps, doorstroom):
+def get_lln_laatste_jaar(vps, aso):
     result = 0
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            if not doorstroom:
+            if not aso:
                 lln = df_vestigingen.loc[int(vp), 'lln_laatste_jaar']
             else:
-                lln = df_vestigingen.loc[int(vp), 'lln_laatste_jaar_doorstroom']
+                lln = df_vestigingen.loc[int(vp), 'lln_laatste_jaar_aso']
             if pd.notna(lln):
                 result += lln
         except:
             result += 0
     return result
 
-def get_ul_laatste_jaar(vps, doorstroom):
+def get_ul_laatste_jaar(vps, aso):
     result = 0
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            if not doorstroom:
+            if not aso:
                 ul = df_vestigingen.loc[int(vp), 'ul_vp_laatste_jaar']
             else:
-                ul = df_vestigingen.loc[int(vp), 'ul_vp_laatste_jaar_doorstroom']
+                ul = df_vestigingen.loc[int(vp), 'ul_vp_laatste_jaar_aso']
+            if pd.notna(ul):
+                result += ul
+        except:
+            result += 0
+    return result
+
+def get_dir_laatste_jaar(vps, aso):
+    result = 0
+    vps = vps.replace('SO_', '')
+    for vp in vps.split('_'):
+        try:
+            if not aso:
+                ul = df_vestigingen.loc[int(vp), 'dir_laatste_jaar']
+            else:
+                ul = df_vestigingen.loc[int(vp), 'dir_laatste_jaar_aso']
             if pd.notna(ul):
                 result += ul
         except:
@@ -206,10 +221,14 @@ df_units['leerlingen_laatste_jaar'] = df_units.apply(
     lambda row: get_lln_laatste_jaar(row['unit_code_so'], False), axis=1)
 df_units['uren-leraar_laatste_jaar'] = df_units.apply(
     lambda row: get_ul_laatste_jaar(row['unit_code_so'], False), axis=1)
-df_units['leerlingen_laatste_jaar_doorstroom'] = df_units.apply(
+df_units['directeurs_laatste_jaar'] = df_units.apply(
+    lambda row: get_dir_laatste_jaar(row['unit_code_so'], False), axis=1)
+df_units['leerlingen_laatste_jaar_aso'] = df_units.apply(
     lambda row: get_lln_laatste_jaar(row['unit_code_so'], True), axis=1)
-df_units['uren-leraar_laatste_jaar_doorstroom'] = df_units.apply(
+df_units['uren-leraar_laatste_jaar_aso'] = df_units.apply(
     lambda row: get_ul_laatste_jaar(row['unit_code_so'], True), axis=1)
+df_units['directeurs_laatste_jaar_aso'] = df_units.apply(
+    lambda row: get_dir_laatste_jaar(row['unit_code_so'], True), axis=1)
 
 
 

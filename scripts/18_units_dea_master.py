@@ -97,15 +97,27 @@ df_units['uren-leraar_asis'] = df_units['ul_vast'] + df_units['ul_asis']
 df_units['uren-leraar_tobe'] = df_units['ul_vast'] + df_units['ul_tobe']
 df_units = df_units[['unit_code_so', 'jaar', 'schoolbestuur', 'net', 'llng_tobe', 'aantal_leerlingen', 
                     'uren-leraar_asis', 'directeurs_asis', 'uren-leraar_tobe',
-                    'leerlingen_laatste_jaar', 'uren-leraar_laatste_jaar',
-                    'leerlingen_laatste_jaar_doorstroom', 'uren-leraar_laatste_jaar_doorstroom']]
+                    'leerlingen_laatste_jaar', 'uren-leraar_laatste_jaar', 'directeurs_laatste_jaar',
+                    'leerlingen_laatste_jaar_aso', 'uren-leraar_laatste_jaar_aso', 'directeurs_laatste_jaar_aso']]
 
 
 # Doorstroom Participatiegraad
-
+df_doorstroom_pg = df_doorstroom_pg[df_doorstroom_pg['Onderwijsvorm code'].isin(['ASO'])]
+df_doorstroom_pg['vp_code'] = df_doorstroom_pg['Instellingscode instelling']*100 + df_doorstroom_pg['Intern volgnummer vestigingsplaats']
+df_doorstroom_pg['jaar'] = df_doorstroom_pg['Schooljaar code'].apply(get_jaar)
+df_doorstroom_pg.set_index(['vp_code', 'jaar'], inplace=True)
+df_doorstroom_pg = df_doorstroom_pg.sort_index()
+df_units[['loopbanen_HO', 'rechtstreeks_HO', 'niet_rechtstreeks_HO', 'niet_HO']] = df_units.apply(
+    lambda row: get_som_kolommen(
+        row['unit_code_so'], 
+        row['jaar'],
+        ['Aantal loopbanen HO','Aantal wel rechtstreeks doorgestroomd naar HO',
+        'Aantal niet rechtstreeks doorgestroomd naar HO', 'Aantal niet doorgestroomd naar HO'],
+        df_doorstroom_pg
+        ), axis=1)
 
 # Doorstroom Studierendement
-df_doorstroom_sr = df_doorstroom_sr[df_doorstroom_sr['Onderwijsvorm code'].isin(['ASO', 'TSO'])]
+df_doorstroom_sr = df_doorstroom_sr[df_doorstroom_sr['Onderwijsvorm code'].isin(['ASO'])]
 df_doorstroom_sr['vp_code'] = df_doorstroom_sr['Instellingscode instelling']*100 + df_doorstroom_sr['Intern volgnummer vestigingsplaats']
 df_doorstroom_sr['jaar'] = df_doorstroom_sr['Code schooljaar afstuderen SO'].apply(get_jaar)
 df_doorstroom_sr.set_index(['vp_code', 'jaar'], inplace=True)

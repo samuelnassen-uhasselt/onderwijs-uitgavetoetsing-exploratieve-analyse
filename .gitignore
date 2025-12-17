@@ -3,3 +3,4 @@ output/**/*.xlsx
 !Brondata/uren-leraar-structuuronderdelen.xlsx
 pyDEA-test.py
 __pycache__/
+*.log
