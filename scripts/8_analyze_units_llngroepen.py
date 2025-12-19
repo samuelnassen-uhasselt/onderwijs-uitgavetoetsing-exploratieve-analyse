@@ -5,14 +5,16 @@ import degressieve_ul_llngroepen as dul
 import sys
 
 df_units = pd.read_excel('Brondata\\Units en complexen\\SO_complexen_DLinfo.xlsx')
-df_vestigingen = pd.read_excel(f'output/jaren/{sys.argv[1]}/5_master_ul_dir.xlsx').set_index('vestigingsplaats')
+df_master = pd.read_excel(f'output/jaren/{sys.argv[1]}/5_master_ul_dir.xlsx').set_index('vestigingsplaats')
+df_laatste_jaar = pd.read_excel(f'output/jaren/{sys.argv[1]}/1_inschrijvingen_vestigingen.xlsx', sheet_name='Laatste Jaar')
+df_laatste_jaar.set_index('vestigingsplaats', inplace=True)
 
 def get_bestuur(vps):
     result = []
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            bestuur = df_vestigingen.loc[int(vp), 'schoolbestuur']
+            bestuur = df_master.loc[int(vp), 'schoolbestuur']
             result.append(bestuur)
         except:
             result.append(np.nan)
@@ -27,7 +29,7 @@ def get_net(vps):
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            net = df_vestigingen.loc[int(vp), 'net']
+            net = df_master.loc[int(vp), 'net']
             result.append(net)
         except:
             result.append(np.nan)
@@ -42,7 +44,7 @@ def get_llngroepen_for_vestingsplaatsen(vps):
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            llngroep = df_vestigingen.loc[int(vp), 'ul_llngroepen']
+            llngroep = df_master.loc[int(vp), 'ul_llngroepen']
             if pd.notna(llngroep):
                 llngroep = ast.literal_eval(llngroep)
             result[vp] = (llngroep)
@@ -82,7 +84,7 @@ def get_llngroep_vul(vps):
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            llngroep = df_vestigingen.loc[int(vp), 'leerlingengroepen_vaste_ul']
+            llngroep = df_master.loc[int(vp), 'leerlingengroepen_vaste_ul']
             if pd.notna(llngroep):
                 llngroep = ast.literal_eval(llngroep)
             result[vp] = (llngroep)
@@ -96,7 +98,7 @@ def get_vaste_ul(vps):
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            vul = df_vestigingen.loc[int(vp), 'vaste_ul_vp']
+            vul = df_master.loc[int(vp), 'vaste_ul_vp']
             if pd.notna(vul):
                 result += vul
         except:
@@ -122,7 +124,7 @@ def get_directeurs(vps):
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            directeur = df_vestigingen.loc[int(vp), 'directeur_vp']
+            directeur = df_master.loc[int(vp), 'directeur_vp']
             if pd.notna(directeur):
                 result += directeur
         except:
@@ -135,28 +137,49 @@ def get_lln_laatste_jaar(vps, aso):
     for vp in vps.split('_'):
         try:
             if not aso:
-                lln = df_vestigingen.loc[int(vp), 'lln_laatste_jaar']
+                lln = df_master.loc[int(vp), 'lln_laatste_jaar']
             else:
-                lln = df_vestigingen.loc[int(vp), 'lln_laatste_jaar_aso']
+                lln = df_master.loc[int(vp), 'lln_laatste_jaar_aso']
             if pd.notna(lln):
                 result += lln
         except:
             result += 0
     return result
 
-def get_ul_laatste_jaar(vps, aso):
-    result = 0
+def get_ul_laatste_jaar_asis(vps, aso):
+    vast = 0
+    deg = 0
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
             if not aso:
-                ul = df_vestigingen.loc[int(vp), 'ul_vp_laatste_jaar']
+                v, d = df_master.loc[int(vp), ['ul_vast_vp_laatste_jaar', 'ul_deg_asis_vp_laatste_jaar']]
             else:
-                ul = df_vestigingen.loc[int(vp), 'ul_vp_laatste_jaar_aso']
-            if pd.notna(ul):
-                result += ul
+                v, d = df_master.loc[int(vp), ['ul_vast_vp_laatste_jaar_aso', 'ul_deg_asis_vp_laatste_jaar_aso']]
+            if pd.notna(v):
+                vast += v
+                deg += d
         except:
-            result += 0
+            pass
+    return pd.Series({'vast': vast, 'deg': deg})
+
+def get_ul_deg_laatste_jaar_tobe(vps, ul_llngr, aso):
+    result = 0
+    vps = vps.replace('SO_', '')
+    for vp in vps.split('_'):
+        try:
+            llngr_lj = df_laatste_jaar.loc[[int(vp)]]
+            if aso:
+                llngr_lj = llngr_lj[llngr_lj['leerlingengroep'].isin(['3e graad aso'])]
+        except:
+            continue
+        llngr_lj = llngr_lj.to_dict('records')
+        for llngr in llngr_lj:
+            tot_lln = ul_llngr[llngr['leerlingengroep']]['inschrijvingen']
+            lln_lj = llngr['aantal_inschrijvingen']
+            ul_deg_vp = ul_llngr[llngr['leerlingengroep']]['uren-leraar']
+            ul_deg_lj = lln_lj*ul_deg_vp/tot_lln
+            result += ul_deg_lj
     return result
 
 def get_dir_laatste_jaar(vps, aso):
@@ -165,9 +188,9 @@ def get_dir_laatste_jaar(vps, aso):
     for vp in vps.split('_'):
         try:
             if not aso:
-                ul = df_vestigingen.loc[int(vp), 'dir_laatste_jaar']
+                ul = df_master.loc[int(vp), 'dir_laatste_jaar']
             else:
-                ul = df_vestigingen.loc[int(vp), 'dir_laatste_jaar_aso']
+                ul = df_master.loc[int(vp), 'dir_laatste_jaar_aso']
             if pd.notna(ul):
                 result += ul
         except:
@@ -219,14 +242,18 @@ df_units['lln_per_dir_tobe'] = df_units['aantal_leerlingen']/df_units['directeur
 
 df_units['leerlingen_laatste_jaar'] = df_units.apply(
     lambda row: get_lln_laatste_jaar(row['unit_code_so'], False), axis=1)
-df_units['uren-leraar_laatste_jaar'] = df_units.apply(
-    lambda row: get_ul_laatste_jaar(row['unit_code_so'], False), axis=1)
+df_units[['vaste_uren-leraar_laatste_jaar', 'deg_uren-leraar_laatste_jaar_asis']] = df_units.apply(
+    lambda row: get_ul_laatste_jaar_asis(row['unit_code_so'], False), axis=1)
+df_units['deg_uren-leraar_laatste_jaar_tobe'] = df_units.apply(
+    lambda row: get_ul_deg_laatste_jaar_tobe(row['unit_code_so'], row['llng_tobe'], False), axis=1)
 df_units['directeurs_laatste_jaar'] = df_units.apply(
     lambda row: get_dir_laatste_jaar(row['unit_code_so'], False), axis=1)
 df_units['leerlingen_laatste_jaar_aso'] = df_units.apply(
     lambda row: get_lln_laatste_jaar(row['unit_code_so'], True), axis=1)
-df_units['uren-leraar_laatste_jaar_aso'] = df_units.apply(
-    lambda row: get_ul_laatste_jaar(row['unit_code_so'], True), axis=1)
+df_units[['vaste_uren-leraar_laatste_jaar_aso', 'deg_uren-leraar_laatste_jaar_aso_asis']] = df_units.apply(
+    lambda row: get_ul_laatste_jaar_asis(row['unit_code_so'], True), axis=1)
+df_units['deg_uren-leraar_laatste_jaar_aso_tobe'] = df_units.apply(
+    lambda row: get_ul_deg_laatste_jaar_tobe(row['unit_code_so'], row['llng_tobe'], True), axis=1)
 df_units['directeurs_laatste_jaar_aso'] = df_units.apply(
     lambda row: get_dir_laatste_jaar(row['unit_code_so'], True), axis=1)
 
@@ -235,3 +262,5 @@ df_units['directeurs_laatste_jaar_aso'] = df_units.apply(
 with pd.ExcelWriter(f'output/jaren/{sys.argv[1]}/8_analyse_units.xlsx') as writer:
     df_units.to_excel(writer, sheet_name='Analyse', index=False)
     df_eindes.to_excel(writer, sheet_name='Eindes', index=False)
+
+

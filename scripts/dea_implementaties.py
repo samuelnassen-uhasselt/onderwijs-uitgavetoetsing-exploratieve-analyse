@@ -1,6 +1,18 @@
 import numpy as np
 import pandas as pd
 from scipy.optimize import linprog
+from pystoned import CNLS, StoNED
+from pystoned.constant import CET_MULT, FUN_COST, RTS_VRS, RED_MOM, OPT_LOCAL
+
+def stoned(input, output):
+    # build and optimize the CNLS model
+    model = CNLS.CNLS(output, input, z=None, cet=CET_MULT, fun=FUN_COST, rts=RTS_VRS)
+    model.optimize('samuel.nassen@uhasselt.be')
+
+    # calculate and print the StoNED frontier
+    rd = StoNED.StoNED(model)
+    rd.get_technical_inefficiency()
+    return rd.get_technical_inefficiency()
 
 def dea_input_oriented_crs(X, Y):
     """

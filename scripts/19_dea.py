@@ -1,8 +1,9 @@
 import pandas as pd
+import numpy as np
 import dea_implementaties as dea
 import dea_plots as dp
 
-df_units = pd.read_excel('output/18_units_dea_master.xlsx')
+df_units = pd.read_excel('output/18_dea_master.xlsx', sheet_name='Units')
 df_units = df_units[df_units['leerlingen_laatste_jaar_aso'] > 0]
 df_units = df_units[df_units['opgenomen_studiepunten'] > 0]
 df_units_2022 = df_units[df_units['jaar_afgestudeerd_so'] == '2022-2023'].copy()
@@ -60,6 +61,14 @@ fig = dp.plot_in_out_analysis_interactive(X, Y, df_units_2022['efficiency_score_
                               school_ids=df_units_2022['unit_code_so'].values)
 
 fig.show()
+
+
+# stoned_x = df_units_2022[input['kolom']]
+# stoned_y = df_units_2022[output['kolom']]
+
+# stoned_eff = dea.stoned(stoned_x, stoned_y)
+# print(stoned_eff)
+# df_units_2022['efficiency_score_stoned_studierendement'] = stoned_eff
 
 
 df_units_2022.to_excel('output/19_dea.xlsx', index=False)
