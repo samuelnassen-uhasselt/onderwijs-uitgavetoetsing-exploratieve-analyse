@@ -2,6 +2,7 @@ import ast
 import numpy as np
 import pandas as pd
 import degressieve_ul_llngroepen as dul
+from scipy.spatial.distance import pdist
 import sys
 
 df_units = pd.read_excel('Brondata\\Units en complexen\\SO_complexen_DLinfo.xlsx')
@@ -9,6 +10,21 @@ df_master = pd.read_excel(f'output/jaren/{sys.argv[1]}/5_master_ul_dir.xlsx')
 df_master_lookup = df_master.copy().set_index('vestigingsplaats')
 df_laatste_jaar = pd.read_excel(f'output/jaren/{sys.argv[1]}/1_inschrijvingen_vestigingen.xlsx', sheet_name='Laatste Jaar')
 df_laatste_jaar.set_index('vestigingsplaats', inplace=True)
+
+def get_max_afstand(vps):
+    coords = []
+    vps = vps.replace('SO', '')
+    for vp in vps.split('_'):
+        try:
+            x = df_master_lookup.loc[int(vp), 'lx']
+            y = df_master_lookup.loc[int(vp), 'ly']
+            if pd.notna(x) and pd.notna(y):
+                coords.append((x, y))
+        except:
+            continue
+
+    afstand = pdist(np.array(list(coords))).max() if len(coords) > 1 else 0
+    return round(afstand/1000, 2)
 
 def get_bestuur(vps):
     result = []
@@ -209,6 +225,8 @@ def get_dir_laatste_jaar(vps, aso):
 
 # De tabel is gebouwd op vestigingsplaatsen, dus er staan units meerdere keren in
 df_units = df_units[['unit_code_so', 'unit_code_SO_actief']].drop_duplicates()
+
+df_units['max_afstand_km'] = df_units['unit_code_so'].apply(get_max_afstand)
 
 # Zoek bestuur en net op
 df_units['schoolbestuur'] = df_units['unit_code_so'].apply(get_bestuur)
