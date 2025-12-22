@@ -25,16 +25,19 @@ df_instellingen = df_master.groupby('schoolnummer').agg({
     'vaste_ul_vp': 'sum',
     'ul_vp': 'sum',
     'ul_tobe': 'sum',
+    'directeurs_tobe': 'sum',
     'lln_laatste_jaar': 'sum',
     'ul_vast_vp_laatste_jaar': 'sum',
     'ul_deg_asis_vp_laatste_jaar': 'sum',
     'ul_laatste_jaar_tobe': 'sum',
     'dir_laatste_jaar': 'sum',
+    'directeurs_laatste_jaar_tobe': 'sum',
     'lln_laatste_jaar_aso': 'sum',
     'ul_vast_vp_laatste_jaar_aso': 'sum',
     'ul_deg_asis_vp_laatste_jaar_aso': 'sum',
     'ul_laatste_jaar_aso_tobe': 'sum',
-    'dir_laatste_jaar_aso': 'sum'
+    'dir_laatste_jaar_aso': 'sum',
+    'directeurs_laatste_jaar_aso_tobe': 'sum'
 }).reset_index()
 
 def get_max_afstand(vps):

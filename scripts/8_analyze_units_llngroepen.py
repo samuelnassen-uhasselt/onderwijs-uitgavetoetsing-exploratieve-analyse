@@ -318,6 +318,17 @@ def get_tobe_vp(vp, master_llngr, laatste):
         pass
     return pd.Series([result, tot])
 
+def get_dir_vp_tobe(vp, lln):
+    try:
+        unit = df_unit_lookup.loc[str(vp)]
+        lln_unit = unit['aantal_leerlingen']
+        if pd.notna(lln_unit) and lln_unit != 0:
+            return lln/lln_unit
+        else:
+            return 0
+    except:
+        return 0
+
 def get_aso_ul_vp(llngr):
     try:
         return llngr['3e graad aso']['ul']
@@ -327,8 +338,14 @@ def get_aso_ul_vp(llngr):
 
 df_master[['llngr_tobe', 'ul_tobe']] = df_master.apply(lambda row:
     get_tobe_vp(row['vestigingsplaats'], row['leerlingengroepen_vp'], False), axis=1)
+df_master['directeurs_tobe'] = df_master.apply(lambda row:
+    get_dir_vp_tobe(row['vestigingsplaats'], row['aantal_inschrijvingen_vp']), axis=1)
 df_master[['llngr_laatste_jaar_tobe', 'ul_laatste_jaar_tobe']] = df_master.apply(lambda row:
     get_tobe_vp(row['vestigingsplaats'], row['llngroepen_laatste_jaar'], True), axis=1)
+df_master['directeurs_laatste_jaar_tobe'] = df_master.apply(lambda row:
+    get_dir_vp_tobe(row['vestigingsplaats'], row['lln_laatste_jaar']), axis=1)
 df_master['ul_laatste_jaar_aso_tobe'] = df_master['llngr_laatste_jaar_tobe'].apply(get_aso_ul_vp)
+df_master['directeurs_laatste_jaar_aso_tobe'] = df_master.apply(lambda row:
+    get_dir_vp_tobe(row['vestigingsplaats'], row['lln_laatste_jaar_aso']), axis=1)
 
 df_master.to_excel(f'output/jaren/{sys.argv[1]}/5_master_ul_dir.xlsx', index=False)

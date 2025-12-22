@@ -15,7 +15,7 @@ df_units_2022['kost_laatste_jaar_aso'] = (
 
 df_units_2022['kost_per_leerling_laatste_aso'] = df_units_2022[
     'kost_laatste_jaar_aso']/df_units_2022['leerlingen_laatste_jaar_aso']
-df_units_2022['doorstroom_percentage'] = 1 -(df_units_2022['niet_HO']/df_units_2022['loopbanen_HO'])
+df_units_2022['doorstroom_percentage'] = df_units_2022['rechtstreeks_HO']/df_units_2022['loopbanen_HO']
 
 input = {
     'kolom': 'kost_per_leerling_laatste_aso',
