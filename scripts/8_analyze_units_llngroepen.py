@@ -214,11 +214,11 @@ def get_dir_laatste_jaar(vps, aso):
     for vp in vps.split('_'):
         try:
             if not aso:
-                ul = df_master_lookup.loc[int(vp), 'dir_laatste_jaar']
+                dir = df_master_lookup.loc[int(vp), 'dir_laatste_jaar']
             else:
-                ul = df_master_lookup.loc[int(vp), 'dir_laatste_jaar_aso']
-            if pd.notna(ul):
-                result += ul
+                dir = df_master_lookup.loc[int(vp), 'dir_laatste_jaar_aso']
+            if pd.notna(dir):
+                result += dir
         except:
             result += 0
     return result
