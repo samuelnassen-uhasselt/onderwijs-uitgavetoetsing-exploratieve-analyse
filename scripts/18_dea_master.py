@@ -136,6 +136,30 @@ def get_oki(vps, jaar, oki_df):
         return 0
     return score_tot/lln_tot
 
+def get_finaliteit(llngroepen):
+    aso = False
+    tso = False
+    bso = False
+    kso = False
+
+    for key in ast.literal_eval(llngroepen).keys():
+        if 'aso' in key:
+            aso = True
+        if 'tso' in key:
+            tso = True
+        if 'bso' in key:
+            bso = True
+        if 'kso' in key:
+            kso = True
+
+    if aso and not tso and not kso and not bso:
+        return 'Volledig aso'
+    if aso and (tso or kso) and not bso:
+        return 'Dubbele doorstroom'
+    if aso and (tso or kso) and bso:
+        return 'Alle finaliteiten'
+    return f'aso:{aso},tso:{tso},bso:{bso}'
+
 def get_dataframe_met_info(df, vp_codes_kolom):
     df[['loopbanen_HO', 'rechtstreeks_HO', 'niet_rechtstreeks_HO', 'niet_HO']] = df.apply(
         lambda row: get_som_kolommen(
@@ -180,23 +204,24 @@ def get_dataframe_met_info(df, vp_codes_kolom):
         ), axis=1)
     df['vsv_percent'] = 100*(df['vsv_teller']/df['vsv_noemer'])
 
-
     df = df.rename(
         columns={
             'jaar': 'jaar_afgestudeerd_so',
             'llng_tobe': 'leerlingengroepen',
         }
     )
-
+    
     return df
-
 
 df_units['uren-leraar_asis'] = df_units['ul_vast'] + df_units['ul_asis']
 df_units['uren-leraar_tobe'] = df_units['ul_vast'] + df_units['ul_tobe']
-df_units = df_units[['unit_code_so', 'jaar', 'schoolbestuur', 'net', 'llng_tobe', 'aantal_leerlingen', 
-                    'uren-leraar_asis', 'directeurs_asis', 'uren-leraar_tobe',
-                    'leerlingen_laatste_jaar', 'uren-leraar_laatste_jaar', 'directeurs_laatste_jaar',
-                    'leerlingen_laatste_jaar_aso', 'uren-leraar_laatste_jaar_aso', 'directeurs_laatste_jaar_aso']]
+df_units['finaliteit'] = df_units['llng_tobe'].apply(get_finaliteit)
+df_units = df_units[['unit_code_so', 'jaar', 'schoolbestuur', 'net', 'llng_tobe', 'finaliteit', 
+                    'aantal_leerlingen', 'uren-leraar_asis', 'directeurs_asis', 'uren-leraar_tobe',
+                    'leerlingen_laatste_jaar', 'vaste_uren-leraar_laatste_jaar', 'deg_uren-leraar_laatste_jaar_asis',
+                    'deg_uren-leraar_laatste_jaar_tobe', 'directeurs_laatste_jaar',
+                    'leerlingen_laatste_jaar_aso', 'vaste_uren-leraar_laatste_jaar_aso', 'deg_uren-leraar_laatste_jaar_aso_asis',
+                    'deg_uren-leraar_laatste_jaar_aso_tobe', 'directeurs_laatste_jaar_aso']]
 df_units = get_dataframe_met_info(df_units, 'unit_code_so')
 
 

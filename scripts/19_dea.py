@@ -7,10 +7,12 @@ df_units = pd.read_excel('output/18_dea_master.xlsx', sheet_name='Units')
 df_units = df_units[df_units['leerlingen_laatste_jaar_aso'] > 0]
 df_units = df_units[df_units['opgenomen_studiepunten'] > 0]
 df_units_2022 = df_units[df_units['jaar_afgestudeerd_so'] == '2022-2023'].copy()
+df_units_2022 = df_units_2022[df_units_2022['finaliteit'] == 'Volledig aso']
 
 df_units_2022['kost_laatste_jaar_aso'] = (
     df_units_2022['directeurs_laatste_jaar_aso']*112776 +
-    df_units_2022['uren-leraar_laatste_jaar_aso'] * 0.9657 * 69073 / 21.23
+    (df_units_2022['vaste_uren-leraar_laatste_jaar_aso'] + 
+     df_units_2022['deg_uren-leraar_laatste_jaar_aso_asis']) * 0.9657 * 69073 / 21.23
 )
 
 df_units_2022['kost_per_leerling_laatste_aso'] = df_units_2022[

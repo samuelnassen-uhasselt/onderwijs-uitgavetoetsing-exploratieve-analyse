@@ -175,6 +175,7 @@ def get_ul_laatste_jaar_asis(vps, aso):
                 v, d = df_master_lookup.loc[int(vp), ['ul_vast_vp_laatste_jaar_aso', 'ul_deg_asis_vp_laatste_jaar_aso']]
             if pd.notna(v):
                 vast += v
+            if pd.notna(d):
                 deg += d
         except:
             pass
