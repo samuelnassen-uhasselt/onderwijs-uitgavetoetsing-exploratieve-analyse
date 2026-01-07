@@ -1,39 +1,80 @@
+import math
+
 degressieve_ul = {
     '1e graad A': {
         'lln': [25, 50, 100],
-        'coef': [0.65, 0.35, 0.2]
+        'coef': [0.65, 0.35, 0.2, 0]
     },
     '1e graad B': {
         'lln': [25, 50, 100],
-        'coef': [0.6, 0.3, 0.15]
+        'coef': [0.6, 0.3, 0.15, 0]
     },
     'n.v.t. (okan) n.v.t. (okan)': {
         'lln': [25, 50, 100],
-        'coef': [0.65, 0.35, 0.2]
+        'coef': [0.65, 0.35, 0.2, 0]
     },
     '2e graad aso': {
         'lln': [25, 50, 100],
-        'coef': [0.45, 0.25, 0.15]
+        'coef': [0.45, 0.25, 0.15, 0]
     },
     '2e graad tso': {
         'lln': [25, 75, 150],
-        'coef': [0.5, 0.3, 0.1]
+        'coef': [0.5, 0.3, 0.1, 0]
     },
     '2e graad bso': {
         'lln': [25, 75, 150],
-        'coef': [0.6, 0.3, 0.15]
+        'coef': [0.6, 0.3, 0.15, 0]
     },
     '3e graad aso': {
         'lln': [25, 50, 100],
-        'coef': [0.45, 0.25, 0.15]
+        'coef': [0.45, 0.25, 0.15, 0]
     },
     '3e graad tso': {
         'lln': [25, 75, 150],
-        'coef': [0.5, 0.3, 0.1]
+        'coef': [0.5, 0.3, 0.1, 0]
     },
     '3e graad bso': {
         'lln': [25, 75, 150],
-        'coef': [0.6, 0.3, 0.15]
+        'coef': [0.6, 0.3, 0.15, 0]
+    },
+}
+
+degressieve_ul_herwerkt = {
+    '1e graad A': {
+        'lln': [25, 50, 100],
+        'coef': [0.65, 0.35, 0.2, 6673.25/77237]
+    },
+    '1e graad B': {
+        'lln': [25, 50, 100],
+        'coef': [0.6, 0.3, 0.15, 1189.2/2772]
+    },
+    'n.v.t. (okan) n.v.t. (okan)': {
+        'lln': [25, 50, 100],
+        'coef': [0.65, 0.35, 0.2, -146.8/911]
+    },
+    '2e graad aso': {
+        'lln': [25, 50, 100],
+        'coef': [0.45, 0.25, 0.15, 359/32309]
+    },
+    '2e graad tso': {
+        'lln': [25, 75, 150],
+        'coef': [0.5, 0.3, 0.1, 1700.1/10232]
+    },
+    '2e graad bso': {
+        'lln': [25, 75, 150],
+        'coef': [0.6, 0.3, 0.15, 1210.95/3991]
+    },
+    '3e graad aso': {
+        'lln': [25, 50, 100],
+        'coef': [0.45, 0.25, 0.15, 315.65/20958]
+    },
+    '3e graad tso': {
+        'lln': [25, 75, 150],
+        'coef': [0.5, 0.3, 0.1, 1775.9/13571]
+    },
+    '3e graad bso': {
+        'lln': [25, 75, 150],
+        'coef': [0.6, 0.3, 0.15, 1393.5/8590]
     },
 }
 
@@ -48,7 +89,7 @@ degressieve_ul = {
 # - Fusies en opsplitsingen
 # - Scholen buiten scholengemeenschappen
 # - Bijkomende uren-leraar samen school maken
-def get_degressieve_uren_leraar(llngroep, aantal):
+def get_degressieve_uren_leraar(llngroep, aantal, herwerkt):
     if ((llngroep == 'hbo') or (llngroep == 'n.v.t. (modulair) bso') or 
         (llngroep == '2e graad kso') or (llngroep == '3e graad kso') or
         (llngroep == '4e graad bso')):
@@ -58,11 +99,16 @@ def get_degressieve_uren_leraar(llngroep, aantal):
     if llngroep == '1e graad BV':
         llngroep = '1e graad B'
 
-    lln = degressieve_ul[llngroep]['lln']
-    coef = degressieve_ul[llngroep]['coef']
+    if not herwerkt:
+        lln = degressieve_ul[llngroep]['lln']
+        coef = degressieve_ul[llngroep]['coef']
+    else:
+        lln = degressieve_ul_herwerkt[llngroep]['lln']
+        coef = degressieve_ul_herwerkt[llngroep]['coef']
 
     if aantal > lln[2]:
-        return round(lln[0] * coef[0] + (lln[1] - lln[0]) * coef[1] + (lln[2] - lln[1]) * coef[2], 2)
+        return round(lln[0] * coef[0] + (lln[1] - lln[0]) * coef[1] + 
+                     (lln[2] - lln[1]) * coef[2] + (aantal - lln[2]) * coef[3], 2)
     if aantal > lln[1]:
         return round(lln[0] * coef[0] + (lln[1] - lln[0]) * coef[1] + (aantal - lln[1]) * coef[2], 2)
     if aantal > lln[0]: 

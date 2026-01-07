@@ -21,24 +21,32 @@ df_bestuur_units = df_units_met_inschrijvingen.groupby('schoolbestuur').agg(
     ul_vast = ('ul_vast', 'sum'),
     ul_asis = ('ul_asis', 'sum'),
     ul_tobe = ('ul_tobe', 'sum'),
+    ul_tobe_herwerkt = ('ul_tobe_herwerkt', 'sum'),
     directeur_asis = ('directeurs_asis', 'sum'),
     directeur_tobe = ('directeur_tobe', 'sum'),
     leerlingen_laatste_jaar = ('leerlingen_laatste_jaar', 'sum'),
-    ul_laatste_jaar_asis = ('uren-leraar_laatste_jaar', 'sum'),
+    vaste_ul_laatste_jaar = ('vaste_uren-leraar_laatste_jaar', 'sum'),
+    deg_ul_laatste_jaar_asis = ('deg_uren-leraar_laatste_jaar_asis', 'sum'),
+    deg_ul_laatste_jaar_tobe = ('deg_uren-leraar_laatste_jaar_tobe', 'sum'),
     dir_laatste_jaar_asis = ('directeurs_laatste_jaar', 'sum'),
     leerlingen_laatste_jaar_aso = ('leerlingen_laatste_jaar_aso', 'sum'),
-    ul_laatste_jaar_aso_asis = ('uren-leraar_laatste_jaar_aso', 'sum'),
+    vaste_ul_laatste_jaar_aso = ('vaste_uren-leraar_laatste_jaar_aso', 'sum'),
+    deg_ul_laatste_jaar_aso_asis = ('deg_uren-leraar_laatste_jaar_aso_asis', 'sum'),
+    deg_ul_laatste_jaar_aso_tobe = ('deg_uren-leraar_laatste_jaar_aso_tobe', 'sum'),
     dir_laatste_jaar_aso_asis = ('directeurs_laatste_jaar_aso', 'sum'),
 ).reset_index()
 
 # Voeg as-is en to-be samen en bereken verschillen
 df_bestuur = pd.merge(df_bestuur_master, df_bestuur_units, how='outer', on='schoolbestuur')
 df_bestuur['ul_diff'] = df_bestuur['ul_tobe'] - df_bestuur['ul_asis']
+df_bestuur['ul_diff_herwerkt'] = df_bestuur['ul_tobe_herwerkt'] - df_bestuur['ul_asis']
 df_bestuur['directeur_diff'] = df_bestuur['directeur_tobe'] - df_bestuur['directeur_asis']
-df_bestuur = df_bestuur[['schoolbestuur', 'instellingen', 'units', 'aantal_leerlingen', 'ul_vast', 
-                         'ul_asis', 'ul_tobe', 'ul_diff', 'directeur_asis', 'directeur_tobe', 'directeur_diff',
-                         'leerlingen_laatste_jaar', 'ul_laatste_jaar_asis', 'dir_laatste_jaar_asis',
-                         'leerlingen_laatste_jaar_aso', 'ul_laatste_jaar_aso_asis', 'dir_laatste_jaar_aso_asis',]]
+df_bestuur = df_bestuur[['schoolbestuur', 'instellingen', 'units', 'aantal_leerlingen', 'ul_vast', 'ul_asis', 'ul_tobe', 
+                         'ul_diff', 'ul_tobe_herwerkt', 'ul_diff_herwerkt', 'directeur_asis', 'directeur_tobe', 
+                         'directeur_diff', 'leerlingen_laatste_jaar', 'vaste_ul_laatste_jaar', 
+                         'deg_ul_laatste_jaar_asis', 'deg_ul_laatste_jaar_tobe', 'dir_laatste_jaar_asis',
+                         'leerlingen_laatste_jaar_aso', 'vaste_ul_laatste_jaar_aso', 'deg_ul_laatste_jaar_aso_asis',
+                         'deg_ul_laatste_jaar_aso_tobe', 'dir_laatste_jaar_aso_asis',]]
 
 df_bestuur['ul_per_lln_asis'] = (df_bestuur['ul_asis'] + df_bestuur['ul_vast'])/df_bestuur['aantal_leerlingen']
 df_bestuur['ul_per_lln_tobe'] = (df_bestuur['ul_tobe'] + df_bestuur['ul_vast'])/df_bestuur['aantal_leerlingen']
@@ -63,6 +71,7 @@ df_net_units = df_units_met_inschrijvingen.groupby('net').agg(
     ul_vast = ('ul_vast', 'sum'),
     ul_asis = ('ul_asis', 'sum'),
     ul_tobe = ('ul_tobe', 'sum'),
+    ul_tobe_herwerkt = ('ul_tobe_herwerkt', 'sum'),
     directeur_asis = ('directeurs_asis', 'sum'),
     directeur_tobe = ('directeur_tobe', 'sum')
 ).reset_index()
@@ -70,9 +79,11 @@ df_net_units = df_units_met_inschrijvingen.groupby('net').agg(
 # Voeg as-is en to-be samen en bereken verschillen
 df_net = pd.merge(df_net_master, df_net_units, how='outer', on='net')
 df_net['ul_diff'] = df_net['ul_tobe'] - df_net['ul_asis']
+df_net['ul_diff_herwerkt'] = df_net['ul_tobe_herwerkt'] - df_net['ul_asis']
+df_net['ul_diff_in_euros_herwerkt'] = df_net['ul_diff_herwerkt'] * 0.9657 * 69073 / 21.23
 df_net['directeur_diff'] = df_net['directeur_tobe'] - df_net['directeur_asis']
-df_net = df_net[['net', 'instellingen', 'units', 'aantal_leerlingen', 'ul_vast', 
-                 'ul_asis', 'ul_tobe', 'ul_diff', 'directeur_asis', 'directeur_tobe', 'directeur_diff']]
+df_net = df_net[['net', 'instellingen', 'units', 'aantal_leerlingen', 'ul_vast', 'ul_asis', 'ul_tobe', 'ul_diff',
+                 'ul_tobe_herwerkt', 'ul_diff_herwerkt', 'ul_diff_in_euros_herwerkt', 'directeur_asis', 'directeur_tobe', 'directeur_diff']]
 
 df_net['ul_per_lln_asis'] = (df_net['ul_asis'] + df_net['ul_vast'])/df_net['aantal_leerlingen']
 df_net['ul_per_lln_tobe'] = (df_net['ul_tobe'] + df_net['ul_vast'])/df_net['aantal_leerlingen']
