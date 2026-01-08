@@ -38,16 +38,7 @@ def get_llngroep_inst_for_vestingsplaatsen(vps):
             llngroep = df_vp_index.loc[int(vp), 'ul_llngroepen']
             if pd.notna(llngroep):
                 llngroep = ast.literal_eval(llngroep)
-            inst = vp[:-2]
-            if inst not in result.keys():
-                result[inst] = {}
-            for groep, info in llngroep.items():
-                if groep not in result[inst]:
-                    result[inst][groep] = {}
-                    result[inst][groep]['inschrijvingen'] = 0
-                    result[inst][groep]['uren-leraar'] = 0
-                result[inst][groep]['inschrijvingen'] += info['inschrijvingen']
-                result[inst][groep]['uren-leraar'] += info['uren-leraar']
+            result[vp] = (llngroep)
         except:
             result[vp] = np.nan
 
@@ -78,7 +69,7 @@ def get_llngroepen_tobe(llngroepen_asis):
                 result[key]['inschrijvingen'] += value['inschrijvingen']
 
     for key, value in result.items():
-        result[key]['uren-leraar'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'])
+        result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], None)
     return result
 
 def get_aantal_leerlingen(llngroepen):
@@ -102,13 +93,13 @@ def ul_asis(llngroepen):
     for vp, llng in llngroepen.items():
         if pd.notna(llng):
             for key, val in llng.items():
-                result += val['uren-leraar']
+                result += val['ul']
     return result
 
 def ul_tobe(llngroepen):
     result = 0
     for key, value in llngroepen.items():
-        result += value['uren-leraar']
+        result += value['ul']
     return result
 
 def get_directeurs(vps):

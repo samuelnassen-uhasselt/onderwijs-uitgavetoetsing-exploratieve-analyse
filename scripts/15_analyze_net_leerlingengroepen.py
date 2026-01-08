@@ -17,12 +17,12 @@ def voeg_asis_llngr_samen(asis, vast):
                     result[llngr] = info
                 else:
                     result[llngr]['inschrijvingen'] += info['inschrijvingen']
-                    result[llngr]['uren-leraar'] += info['uren-leraar']
+                    result[llngr]['ul'] += info['ul']
 
     for key, value in vast.items():
         if value != None:
             for llngr, ul in value.items():
-                result[llngr]['uren-leraar'] += ul
+                result[llngr]['ul'] += ul
 
     return result
 
@@ -38,12 +38,12 @@ def voeg_tobe_llngr_samen(tobe, vast):
             result[llngr] = info
         else:
             result[llngr]['inschrijvingen'] += info['inschrijvingen']
-            result[llngr]['uren-leraar'] += info['uren-leraar']
+            result[llngr]['ul'] += info['ul']
 
     for key, value in vast.items():
         if value != None:
             for llngr, ul in value.items():
-                result[llngr]['uren-leraar'] += ul
+                result[llngr]['ul'] += ul
     
     return result
 
@@ -69,8 +69,8 @@ for idx, row in df.iterrows():
                 'net': row['net'],
                 'leerlingengroep': key,
                 'inschrijvingen': dict_col1.get(key, {}).get('inschrijvingen'),
-                'uren_leraar_asis': dict_col1.get(key, {}).get('uren-leraar'),
-                'uren_leraar_tobe': dict_col2.get(key, {}).get('uren-leraar'),
+                'uren_leraar_asis': dict_col1.get(key, {}).get('ul'),
+                'uren_leraar_tobe': dict_col2.get(key, {}).get('ul'),
             }
             rows.append(new_row)
 

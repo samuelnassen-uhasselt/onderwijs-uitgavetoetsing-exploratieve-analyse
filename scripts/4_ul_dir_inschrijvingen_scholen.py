@@ -18,7 +18,7 @@ def merge_llngroep_dictionaries(string_dicts):
     # Uren-leraar op basis van inschrijvingen per leerlingengroep
     result = {}
     for key, value in inschr.items():
-        ul = dul.get_degressieve_uren_leraar(key, value)
+        ul = dul.get_degressieve_uren_leraar(key, value, None)
         result[key] = {
             'inschrijvingen': value,
             'uren-leraar': ul

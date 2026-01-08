@@ -23,7 +23,7 @@ for filename in os.listdir('./Brondata/Inschrijvingen'):
 # '13_straal.py', '14_analyze_straal.py', '15_analyze_net_leerlingengroepen.py', '21_analyze_instellingen.py', 
 # ]
 scripts = [
-    '8_analyze_units_llngroepen.py', '21_analyze_instellingen.py'
+    '14_analyze_straal.py'
 ]
 
 # others = [
@@ -31,7 +31,7 @@ scripts = [
 # '20_vergelijk_clusters_units.py'
 # ]
 others = [
-    '16_jaren_samen.py', '18_dea_master.py'
+    '16_jaren_samen.py', '17_analyze_clusters_llngroepen.py'
 ]
 
 

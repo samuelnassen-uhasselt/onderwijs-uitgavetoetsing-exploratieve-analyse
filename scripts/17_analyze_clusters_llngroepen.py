@@ -11,8 +11,9 @@ def get_llngroepen_aantal(llngroepen):
     llngroepen = ast.literal_eval(llngroepen)
 
     for key, value in llngroepen.items():
-        for llngr in value.keys():
-            result[llngr] = result.get(llngr, 0) + 1
+        if value != None:
+            for llngr in value.keys():
+                result[llngr] = result.get(llngr, 0) + 1
 
     return result
 

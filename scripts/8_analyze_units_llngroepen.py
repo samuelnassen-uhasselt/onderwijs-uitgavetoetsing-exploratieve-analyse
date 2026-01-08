@@ -235,8 +235,9 @@ df_units['net'] = df_units['unit_code_so'].apply(get_net)
 
 # Zoek leerlingengroepe as-is op en bereken to-be
 df_units['llng_asis'] = df_units['unit_code_so'].apply(get_llngroepen_for_vestingsplaatsen)
-df_units['llng_tobe'] = df_units.apply(lambda row: get_llngroepen_tobe(row['llng_asis'], herwerkt=False), axis=1)
-df_units['llng_tobe_herwerkt'] = df_units.apply(lambda row: get_llngroepen_tobe(row['llng_asis'], herwerkt=True), axis=1)
+df_units['llng_tobe'] = df_units.apply(lambda row: get_llngroepen_tobe(row['llng_asis'], herwerkt=None), axis=1)
+df_units['llng_tobe_herwerkt'] = df_units.apply(lambda row: get_llngroepen_tobe(row['llng_asis'], herwerkt='DEEL'), axis=1)
+df_units['llng_tobe_herwerkt_alle'] = df_units.apply(lambda row: get_llngroepen_tobe(row['llng_asis'], herwerkt='ALLE'), axis=1)
 df_units['leerlingengroepen'] = df_units['llng_asis'].apply(get_llngroepen_set)
 df_units['aantal_leerlingen'] = df_units['llng_tobe'].apply(get_aantal_leerlingen)
 
@@ -257,8 +258,13 @@ df_units['llngroep_ul_vast'] = df_units['unit_code_so'].apply(get_llngroep_vul)
 df_units['ul_vast'] = df_units['unit_code_so'].apply(get_vaste_ul)
 df_units['ul_asis'] = df_units['llng_asis'].apply(ul_asis)
 df_units['ul_tobe'] = df_units['llng_tobe'].apply(ul_tobe)
-df_units['ul_tobe_herwerkt'] = df_units['llng_tobe_herwerkt'].apply(ul_tobe)
 df_units['ul_diff'] = df_units['ul_tobe'] - df_units['ul_asis']
+df_units['ul_tobe_herwerkt'] = df_units['llng_tobe_herwerkt'].apply(ul_tobe)
+df_units['ul_diff_herwerkt'] = df_units['ul_tobe_herwerkt'] - df_units['ul_asis']
+df_units['ul_diff_in_euros_herwerkt'] = df_units['ul_diff_herwerkt'] * 0.9657 * 69073 / 21.23
+df_units['ul_tobe_herwerkt_alle'] = df_units['llng_tobe_herwerkt_alle'].apply(ul_tobe)
+df_units['ul_diff_herwerkt_alle'] = df_units['ul_tobe_herwerkt_alle'] - df_units['ul_asis']
+df_units['ul_diff_in_euros_herwerkt_alle'] = df_units['ul_diff_herwerkt_alle'] * 0.9657 * 69073 / 21.23
 
 df_units['ul_per_lln_asis'] = (df_units['ul_asis'] + df_units['ul_vast'])/df_units['aantal_leerlingen']
 df_units['ul_per_lln_tobe'] = (df_units['ul_tobe'] + df_units['ul_vast'])/df_units['aantal_leerlingen']

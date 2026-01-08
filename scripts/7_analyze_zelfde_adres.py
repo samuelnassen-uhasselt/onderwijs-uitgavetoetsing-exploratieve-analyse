@@ -93,7 +93,7 @@ def get_llngroepen_tobe(llngroepen_asis):
                 result[key]['inschrijvingen'] += value['inschrijvingen']
 
     for key, value in result.items():
-        result[key]['uren-leraar'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'])
+        result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], None)
     return result
 
 def get_aantal_leerlingen(llngroepen):
@@ -130,13 +130,13 @@ def ul_asis(llngroepen):
     for vp, llng in llngroepen.items():
         if pd.notna(llng):
             for key, val in llng.items():
-                result += val['uren-leraar']
+                result += val['ul']
     return result
 
 def ul_tobe(llngroepen):
     result = 0
     for key, value in llngroepen.items():
-        result += value['uren-leraar']
+        result += value['ul']
     return result
 
 def get_directeurs(vps):
