@@ -173,9 +173,9 @@ def get_werkingsmiddelen(row, laatste, aso):
     inschr_inst = row['aantal_inschrijvingen_inst']
     if laatste:
         if aso:
-            inschr_part = row['aantal_inschrijvingen_inst']
+            inschr_part = row['lln_laatste_jaar_aso']
         else:
-            inschr_part = row['aantal_inschrijvingen_inst']
+            inschr_part = row['lln_laatste_jaar']
     else:
         inschr_part = row['aantal_inschrijvingen_vp']
 
@@ -189,9 +189,9 @@ def get_extra_omkdaering(row, laatste, aso):
     inschr_inst = row['aantal_inschrijvingen_inst']
     if laatste:
         if aso:
-            inschr_part = row['aantal_inschrijvingen_inst']
+            inschr_part = row['lln_laatste_jaar_aso']
         else:
-            inschr_part = row['aantal_inschrijvingen_inst']
+            inschr_part = row['lln_laatste_jaar']
     else:
         inschr_part = row['aantal_inschrijvingen_vp']
     
@@ -257,5 +257,9 @@ df['werkingsmiddelen_vp_laatste_aso'] = df.apply(lambda row: get_werkingsmiddele
 
 df[['extra_ul_aanwendbaar', 'extra_ambten_aanwendbaar', 'extra_punten_aanwendbaar']] = df.apply(
     lambda row: get_extra_omkdaering(row, False, False), axis=1)
+df[['extra_ul_aanwendbaar_laatste', 'extra_ambten_aanwendbaar_laatste', 'extra_punten_aanwendbaar_laatste']] = df.apply(
+    lambda row: get_extra_omkdaering(row, True, False), axis=1)
+df[['extra_ul_aanwendbaar_laatste_aso', 'extra_ambten_aanwendbaar_laatste_aso', 'extra_punten_aanwendbaar_laatste_aso']] = df.apply(
+    lambda row: get_extra_omkdaering(row, True, True), axis=1)
 
 df.to_excel(f'output/jaren/{schooljaar}/5_master_ul_dir.xlsx', index=False)
