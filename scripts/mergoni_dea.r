@@ -4,26 +4,26 @@ library(rcDEA)
 library(readxl)
 library(writexl)
 
-df <- read_xlsx("output\\18_dea_master.xlsx")
+args <- commandArgs(trailingOnly = TRUE)
+dea_file = args[1]
+input = args[2]
+output = args[3]
+conditioneel = args[4]
+col_name = args[5]
 
-reference_df <- df %>%
-  filter(jaar_afgestudeerd_so == "2022-2023") %>%
-  filter(leerlingen_laatste_jaar_aso > 0) %>%
-  mutate(aso = `uren-leraar_laatste_jaar_aso` / leerlingen_laatste_jaar_aso) %>%
-  filter(leerlingen_laatste_jaar_aso>0)
+df <- read_xlsx(dea_file)
 
-dea_df <- reference_df %>%
+dea_df <- df %>%
   select(-unit_code_so, -jaar_afgestudeerd_so, -schoolbestuur, -net, -leerlingengroepen)
 
 dea_input <- dea_df %>%
-  select(aso)
+  select(all_of(input))
 
 dea_output <- dea_df %>%
-  select(studierendement) %>%
-  mutate(studierendement = coalesce(studierendement, 0))
+  select(all_of(output))
 
 dea_exo <- dea_df %>%
-  select(gemiddelde_oki)
+  select(all_of(conditioneel))
 
 c_DEA <- conditional_DEA(input = dea_input, output = dea_output,
                          exogenous = dea_exo,
@@ -31,8 +31,11 @@ m = 402, B = 50,
 alpha = TRUE,
 RTS = "crs", ORIENTATION = "in")
 
-results <- reference_df %>%
-  select(unit_code_so, `uren-leraar_laatste_jaar_aso`, leerlingen_laatste_jaar_aso, aso, studierendement) %>%
-  mutate(dea = c_DEA$eff)
+results <- df %>%
+  select(unit_code_so) %>%
+  mutate(!!col_name := c_DEA$eff)
 
-write_xlsx(results, "output\\r_mergoni_results.xlsx")
+df_updated <- df %>%
+  left_join(results, by = "unit_code_so")
+
+write_xlsx(df_updated, dea_file)

@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import dea_implementaties as dea
 import dea_plots as dp
+import subprocess
 
 df_units = pd.read_excel('output/18_dea_master.xlsx', sheet_name='Units')
 df_units = df_units[df_units['leerlingen_laatste_jaar_aso'] > 0]
@@ -74,3 +75,15 @@ fig.show()
 
 
 df_units_2022.to_excel('output/19_dea.xlsx', index=False)
+
+
+r_path = "C:\\Program Files\\R\\R-4.5.2\\bin\\Rscript.exe"
+script = "C:\\Users\\lucp14223\\Files\\programmeren\\onderwijs\\analyse\\scripts\\mergoni_dea.r"
+
+dea_file = "output\\19_dea.xlsx"
+input_col = 'kost_per_leerling_laatste_aso'
+output_col = 'studierendement'
+conditioneel_col = 'gemiddelde_oki'
+col_name = 'mergoni_dea'
+
+res = subprocess.call([r_path, script, dea_file, input_col, output_col, conditioneel_col, col_name])
