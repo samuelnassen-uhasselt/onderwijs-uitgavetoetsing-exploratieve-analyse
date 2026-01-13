@@ -224,6 +224,30 @@ def get_dir_laatste_jaar(vps, aso):
             result += 0
     return result
 
+def get_extra_aanwendbaar(vps, laatste, aso):
+    ul, ambten, punten = [0,0,0]
+    vps = vps.replace('SO_', '')
+    for vp in vps.split('_'):
+        try:
+            if not aso:
+                if laatste:
+                    extra = df_master_lookup.loc[int(vp), ['extra_ul_aanwendbaar_laatste', 
+                                                           'extra_ambten_aanwendbaar_laatste', 'extra_punten_aanwendbaar_laatste']]
+                else:
+                    extra = df_master_lookup.loc[int(vp), ['extra_ul_aanwendbaar', 
+                                                           'extra_ambten_aanwendbaar', 'extra_punten_aanwendbaar']]
+            else:
+                extra = df_master_lookup.loc[int(vp), ['extra_ul_aanwendbaar_laatste_aso', 
+                                                       'extra_ambten_aanwendbaar_laatste_aso', 
+                                                       'extra_punten_aanwendbaar_laatste_aso']]
+            ul += extra.iloc[0]
+            ambten += extra.iloc[1]
+            punten += extra.iloc[2]
+        except:
+            continue
+
+    return pd.Series([ul, ambten, punten])
+
 # De tabel is gebouwd op vestigingsplaatsen, dus er staan units meerdere keren in
 df_units = df_units[['unit_code_so', 'unit_code_SO_actief']].drop_duplicates()
 
@@ -294,7 +318,18 @@ df_units['deg_uren-leraar_laatste_jaar_aso_tobe'] = df_units['llngr_laatste_jaar
 df_units['directeurs_laatste_jaar_aso'] = df_units.apply(
     lambda row: get_dir_laatste_jaar(row['unit_code_so'], True), axis=1)
 
-
+df_units[['extra_ul_aanwendbaar', 'extra_ambten_aanwendbaar', 'extra_punten_aanwendbaar']] = df_units.apply(
+    lambda row: get_extra_aanwendbaar(row['unit_code_so'], False, False),
+    axis=1
+)
+df_units[['extra_ul_aanwendbaar_laatste', 'extra_ambten_aanwendbaar_laatste', 'extra_punten_aanwendbaar_laatste']] = df_units.apply(
+    lambda row: get_extra_aanwendbaar(row['unit_code_so'], True, False),
+    axis=1
+)
+df_units[['extra_ul_aanwendbaar_laatste_aso', 'extra_ambten_aanwendbaar_laatste_aso', 'extra_punten_aanwendbaar_laatste_aso']] = df_units.apply(
+    lambda row: get_extra_aanwendbaar(row['unit_code_so'], True, True),
+    axis=1
+)
 
 with pd.ExcelWriter(f'output/jaren/{sys.argv[1]}/8_analyse_units.xlsx') as writer:
     df_units.to_excel(writer, sheet_name='Analyse', index=False)
