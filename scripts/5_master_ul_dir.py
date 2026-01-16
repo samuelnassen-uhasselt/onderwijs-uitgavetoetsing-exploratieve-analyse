@@ -236,7 +236,7 @@ df = pd.merge(df_master, df_schoolnummers, how='left', on='schoolnummer', suffix
 df[['lx', 'ly']] = df.apply(get_lambert, axis=1)
 
 # Bereken de percentages
-df['directeur_vp'] = df['aantal_inschrijvingen_vp']/df['aantal_inschrijvingen_inst']
+df['directeur_vp'] = df['aantal_inschrijvingen_vp']*df['directeurs']/df['aantal_inschrijvingen_inst']
 df['ul_llngroepen'] = df.apply(lambda row: get_uren_leraar(
     row['leerlingengroepen_vp'], row['leerlingengroepen_inst']), axis=1)
 df['ul_vp'] = df['ul_llngroepen'].apply(ul_vp)

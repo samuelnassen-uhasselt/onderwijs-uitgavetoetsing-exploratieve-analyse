@@ -19,7 +19,8 @@ df = df[df['hoofdstructuur'] == 'Voltijds gewoon secundair onderwijs']
 
 # Groepeer en tel aantal inschrijvingen
 df = df.groupby([
-    'instellingsnummer', 'intern_volgnr_vpl', 'vestigingsplaats_adres', 'onderwijsvorm', 'graad_so', 'leerjaar_code', 'schoolbestuur', 'onderwijsnet', 'studierichting'
+    'instellingsnummer', 'intern_volgnr_vpl', 'vestigingsplaats_adres', 'onderwijsvorm', 'graad_so', 
+    'leerjaar_code', 'schoolbestuur', 'onderwijsnet', 'studierichting'
 ]).agg({
         'aantal_inschrijvingen': 'sum'
 }).reset_index()
@@ -38,7 +39,8 @@ df_vul_stdr = df.copy()
 
 df_laaste_jaar = df[df['graad_so'].isin(['3e graad', 'n.v.t. (hbo)'])]
 df_laaste_jaar = df_laaste_jaar[df_laaste_jaar['leerjaar_code'].isin(['2', '3', '/'])]
-df_laaste_jaar = df_laaste_jaar.groupby(['vestigingsplaats', 'leerlingengroep'])[['aantal_inschrijvingen', 'vaste_ul']].sum().reset_index()
+df_laaste_jaar = df_laaste_jaar.groupby(['vestigingsplaats', 'leerlingengroep'])[[
+    'aantal_inschrijvingen', 'vaste_ul']].sum().reset_index()
 
 # Groepeer op leerlingengroep om de leerjaren samen te nemen
 df = df.groupby(['vestigingsplaats', 'vestigingsplaats_adres', 'leerlingengroep', 'schoolbestuur', 'onderwijsnet']).agg({

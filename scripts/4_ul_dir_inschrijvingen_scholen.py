@@ -37,15 +37,15 @@ def merge_llngroup_vul(string_dicts):
 
     return result
 
-def get_directeur_vol_half(llngr, aantal):
-    for g in llngr.keys():
-        if not '1e graad' in g and not '2e graad' in g and not 'okan' in g:
-            if aantal >= 83:
-                return 1
-            return 0.5
+def get_directeur(llngr, aantal):
+    g = '_'.join(llngr.keys())
+    if '3e graad' in g or '4e graad' in g or 'hbo' in g or 'n.v.t. (modulair) bso' in g:
+        if aantal >= 83:
+            return 1
+        return 0
     if aantal >= 120:
         return 1
-    return 0.5
+    return 0
 
 df_vestigingen = pd.read_excel(f'output/jaren/{sys.argv[1]}/3_vestigingsplaatsen_master.xlsx')
 
@@ -56,6 +56,6 @@ df_schoolnummers = df_vestigingen.groupby('schoolnummer', dropna=False).agg({
     'vaste_ul': 'sum',
     'aantal_inschrijvingen': 'sum'
 }).reset_index()
-df_schoolnummers['directeurs'] = df_schoolnummers.apply(lambda row: get_directeur_vol_half(row['leerlingengroepen'], row['aantal_inschrijvingen']), axis=1)
+df_schoolnummers['directeurs'] = df_schoolnummers.apply(lambda row: get_directeur(row['leerlingengroepen'], row['aantal_inschrijvingen']), axis=1)
 
 df_schoolnummers.to_excel(f'output/jaren/{sys.argv[1]}/4_schoolnummers_llngroepen_ul_inschrijvingen.xlsx', index=False)

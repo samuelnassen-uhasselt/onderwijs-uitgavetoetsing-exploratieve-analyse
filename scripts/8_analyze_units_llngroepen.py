@@ -4,6 +4,7 @@ import pandas as pd
 import degressieve_ul_llngroepen as dul
 from scipy.spatial.distance import pdist
 import sys
+import math
 
 df_units = pd.read_excel('Brondata\\Units en complexen\\SO_complexen_DLinfo.xlsx')
 df_master = pd.read_excel(f'output/jaren/{sys.argv[1]}/5_master_ul_dir.xlsx')
@@ -248,6 +249,9 @@ def get_extra_aanwendbaar(vps, laatste, aso):
 
     return pd.Series([ul, ambten, punten])
 
+def get_punten_directeurs_tobe_herwerkt(aantal):
+    return math.floor(aantal/375)*120
+
 # De tabel is gebouwd op vestigingsplaatsen, dus er staan units meerdere keren in
 df_units = df_units[['unit_code_so', 'unit_code_SO_actief']].drop_duplicates()
 
@@ -330,6 +334,7 @@ df_units[['extra_ul_aanwendbaar_laatste_aso', 'extra_ambten_aanwendbaar_laatste_
     lambda row: get_extra_aanwendbaar(row['unit_code_so'], True, True),
     axis=1
 )
+df_units['punten_dir_tobe_herwerkt'] = df_units['aantal_leerlingen'].apply(get_punten_directeurs_tobe_herwerkt)
 
 with pd.ExcelWriter(f'output/jaren/{sys.argv[1]}/8_analyse_units.xlsx') as writer:
     df_units.to_excel(writer, sheet_name='Analyse', index=False)
