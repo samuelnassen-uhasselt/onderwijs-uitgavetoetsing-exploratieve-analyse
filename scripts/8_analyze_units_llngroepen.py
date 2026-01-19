@@ -102,7 +102,7 @@ def get_llngroep_vul(vps):
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            llngroep = df_master_lookup.loc[int(vp), 'leerlingengroepen_vaste_ul']
+            llngroep = df_master_lookup.loc[int(vp), 'leerlingengroepen_vaste_ul_vp']
             if pd.notna(llngroep):
                 llngroep = ast.literal_eval(llngroep)
             result[vp] = (llngroep)
@@ -148,6 +148,16 @@ def get_directeurs(vps):
         except:
             result += 0
     return result
+
+def get_directeur_tobe(llngr, aantal):
+    g = '_'.join(llngr.keys())
+    if '3e graad' in g or '4e graad' in g or 'hbo' in g or 'n.v.t. (modulair) bso' in g:
+        if aantal >= 83:
+            return 1
+        return 0
+    if aantal >= 120:
+        return 1
+    return 0
 
 def get_lln_laatste_jaar(vps, aso):
     result = 0
@@ -299,7 +309,8 @@ df_units['ul_per_lln_tobe'] = (df_units['ul_tobe'] + df_units['ul_vast'])/df_uni
 
 # Bereken en vergelijk directeurs
 df_units['directeurs_asis'] = df_units['unit_code_so'].apply(get_directeurs)
-df_units['directeur_tobe'] = df_units.apply(lambda row: 1 if row['aantal_leerlingen'] > 0 else 0, axis=1)
+df_units['directeur_tobe'] = df_units.apply(lambda row: get_directeur_tobe(row['llng_tobe'],
+                                                                           row['aantal_leerlingen']), axis=1)
 df_units['directeur_diff'] = df_units['directeur_tobe'] - df_units['directeurs_asis']
 
 df_units['lln_per_dir_asis'] = df_units['aantal_leerlingen']/df_units['directeurs_asis']
@@ -371,8 +382,9 @@ def get_dir_vp_tobe(vp, lln):
     try:
         unit = df_unit_lookup.loc[str(vp)]
         lln_unit = unit['aantal_leerlingen']
+        dir_unit = unit['directeur_tobe']
         if pd.notna(lln_unit) and lln_unit != 0:
-            return lln/lln_unit
+            return lln*dir_unit/lln_unit
         else:
             return 0
     except:

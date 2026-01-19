@@ -126,6 +126,8 @@ def ul_laatste_jaar(vp, ul_llngr, aso):
         if aso:
             llngr_lj = llngr_lj[llngr_lj['leerlingengroep'].isin(['3e graad aso'])]
     except:
+        if not aso:
+            return pd.Series([result, vast, deg])
         return pd.Series([vast, deg])
     llngr_lj = llngr_lj.to_dict('records')
     for llngr in llngr_lj:
@@ -249,7 +251,7 @@ df[['ul_vast_vp_laatste_jaar_aso', 'ul_deg_asis_vp_laatste_jaar_aso']] = df.appl
     row['vestigingsplaats'], row['ul_llngroepen'], True), axis=1)
 df['dir_laatste_jaar_aso'] = df['directeur_vp'] * df['lln_laatste_jaar_aso']/df['aantal_inschrijvingen_vp']
 df['lln_per_dir'] = df['aantal_inschrijvingen_vp']/df['directeur_vp']
-df['ul_per_lln'] = df['ul_vp']/df['aantal_inschrijvingen_vp']
+df['ul_per_lln'] = (df['vaste_ul_vp'] + df['ul_vp'])/df['aantal_inschrijvingen_vp']
 
 df['werkingsmiddelen_vp'] = df.apply(lambda row: get_werkingsmiddelen(row, False, False), axis=1)
 df['werkingsmiddelen_vp_laatste'] = df.apply(lambda row: get_werkingsmiddelen(row, True, False), axis=1)
