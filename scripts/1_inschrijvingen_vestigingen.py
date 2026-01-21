@@ -20,7 +20,7 @@ df = df[df['hoofdstructuur'] == 'Voltijds gewoon secundair onderwijs']
 # Groepeer en tel aantal inschrijvingen
 df = df.groupby([
     'instellingsnummer', 'intern_volgnr_vpl', 'vestigingsplaats_adres', 'onderwijsvorm', 'graad_so', 
-    'leerjaar_code', 'schoolbestuur', 'onderwijsnet', 'studierichting'
+    'leerjaar_code', 'schoolbestuur', 'onderwijsnet', 'scholengemeenschap', 'studierichting'
 ]).agg({
         'aantal_inschrijvingen': 'sum'
 }).reset_index()
@@ -43,14 +43,15 @@ df_laaste_jaar = df_laaste_jaar.groupby(['vestigingsplaats', 'leerlingengroep'])
     'aantal_inschrijvingen', 'vaste_ul']].sum().reset_index()
 
 # Groepeer op leerlingengroep om de leerjaren samen te nemen
-df = df.groupby(['vestigingsplaats', 'vestigingsplaats_adres', 'leerlingengroep', 'schoolbestuur', 'onderwijsnet']).agg({
+df = df.groupby(['vestigingsplaats', 'vestigingsplaats_adres', 'leerlingengroep', 
+                 'schoolbestuur', 'onderwijsnet', 'scholengemeenschap']).agg({
     'aantal_inschrijvingen': 'sum',
     'vaste_ul': 'sum'
 }).reset_index()
 
 # Neem alles samen op vestigingsplaats
 # De leerlingengroepen met bijhorende inschrijvingen komen terecht in een lijst
-df = df.groupby(['vestigingsplaats', 'vestigingsplaats_adres', 'schoolbestuur', 'onderwijsnet']).agg(
+df = df.groupby(['vestigingsplaats', 'vestigingsplaats_adres', 'schoolbestuur', 'onderwijsnet', 'scholengemeenschap']).agg(
     leerlingengroepen=('leerlingengroep', lambda x: dict(zip(x, df.loc[x.index, 'aantal_inschrijvingen']))),
     leerlingengroepen_vaste_ul = ('leerlingengroep', lambda x: dict(zip(x, df.loc[x.index, 'vaste_ul']))),
     aantal_inschrijvingen=('aantal_inschrijvingen', 'sum'),

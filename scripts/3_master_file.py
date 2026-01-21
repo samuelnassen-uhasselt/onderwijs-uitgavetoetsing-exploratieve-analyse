@@ -74,8 +74,12 @@ df_master['net'] = df_master.apply(
 
 # Selecteer kolommen
 df_master = df_master[['vestigingsplaats', 'vestigingsplaats_adres', 'provincie', 'lx', 'ly', 
-                       'bestuur', 'schoolbestuur', 'net', 'onderwijsnet', 'schoolnummer', 'leerlingengroepen',
-                       'leerlingengroepen_vaste_ul', 'aantal_inschrijvingen', 'vaste_ul']]
+                       'bestuur', 'schoolbestuur', 'net', 'onderwijsnet', 'scholengemeenschap_y', 'schoolnummer', 
+                       'leerlingengroepen', 'leerlingengroepen_vaste_ul', 'aantal_inschrijvingen', 'vaste_ul']].rename(
+                           columns={
+                               'scholengemeenschap_y': 'scholengemeenschap'
+                           }
+                       )
 
 
 df_master.to_excel(f'output/jaren/{sys.argv[1]}/3_vestigingsplaatsen_master.xlsx', index=False)

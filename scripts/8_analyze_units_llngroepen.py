@@ -57,6 +57,21 @@ def get_net(vps):
         return result[0]
     return result
 
+def get_scholengemeenschap(vps):
+    result = []
+    vps = vps.replace('SO_', '')
+    for vp in vps.split('_'):
+        try:
+            net = df_master_lookup.loc[int(vp), 'scholengemeenschap']
+            result.append(net)
+        except:
+            result.append(np.nan)
+    result = [i for i in result if pd.notna(i)]
+    result = list(set(result))
+    if len(result) == 1:
+        return result[0]
+    return result
+
 def get_llngroepen_for_vestingsplaatsen(vps):
     result = {}
     vps = vps.replace('SO_', '')
@@ -81,7 +96,7 @@ def get_llngroepen_tobe(llngroepen_asis, herwerkt):
                 result[key]['inschrijvingen'] += value['inschrijvingen']
 
     for key, value in result.items():
-        result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], herwerkt)
+        result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], herwerkt, {})
     return result
 
 def get_llngroepen_set(llngroepen):
@@ -138,26 +153,32 @@ def ul_tobe(llngroepen):
     return result
 
 def get_directeurs(vps):
-    result = 0
+    result_vt = 0
+    result_lo = 0
     vps = vps.replace('SO_', '')
     for vp in vps.split('_'):
         try:
-            directeur = df_master_lookup.loc[int(vp), 'directeur_vp']
-            if pd.notna(directeur):
-                result += directeur
+            directeur_vt = df_master_lookup.loc[int(vp), 'directeur_vp_vt']
+            directeur_lo = df_master_lookup.loc[int(vp), 'directeur_vp_lo']
+            if pd.notna(directeur_vt):
+                result_vt += directeur_vt
+            if pd.notna(directeur_lo):
+                result_lo += directeur_lo
         except:
-            result += 0
-    return result
+            continue
+    return pd.Series([result_vt, result_lo])
 
 def get_directeur_tobe(llngr, aantal):
+    if aantal == 0:
+        return pd.Series([0,0])
     g = '_'.join(llngr.keys())
-    if '3e graad' in g or '4e graad' in g or 'hbo' in g or 'n.v.t. (modulair) bso' in g:
+    if '3e graad' in g or '4e graad' in g or 'hbo' in g or 'n.v.t. (modulair) bso' in g or 'okan' in g:
         if aantal >= 83:
-            return 1
-        return 0
+            return pd.Series([1,0])
+        return pd.Series([0,1])
     if aantal >= 120:
-        return 1
-    return 0
+        return pd.Series([1,0])
+    return pd.Series([0,1])
 
 def get_lln_laatste_jaar(vps, aso):
     result = 0
@@ -270,12 +291,11 @@ df_units['max_afstand_km'] = df_units['unit_code_so'].apply(get_max_afstand)
 # Zoek bestuur en net op
 df_units['schoolbestuur'] = df_units['unit_code_so'].apply(get_bestuur)
 df_units['net'] = df_units['unit_code_so'].apply(get_net)
+df_units['scholengemeenschap'] = df_units['unit_code_so'].apply(get_scholengemeenschap)
 
 # Zoek leerlingengroepe as-is op en bereken to-be
 df_units['llng_asis'] = df_units['unit_code_so'].apply(get_llngroepen_for_vestingsplaatsen)
 df_units['llng_tobe'] = df_units.apply(lambda row: get_llngroepen_tobe(row['llng_asis'], herwerkt=None), axis=1)
-df_units['llng_tobe_herwerkt'] = df_units.apply(lambda row: get_llngroepen_tobe(row['llng_asis'], herwerkt='DEEL'), axis=1)
-df_units['llng_tobe_herwerkt_alle'] = df_units.apply(lambda row: get_llngroepen_tobe(row['llng_asis'], herwerkt='ALLE'), axis=1)
 df_units['leerlingengroepen'] = df_units['llng_asis'].apply(get_llngroepen_set)
 df_units['aantal_leerlingen'] = df_units['llng_tobe'].apply(get_aantal_leerlingen)
 
@@ -297,20 +317,18 @@ df_units['ul_vast'] = df_units['unit_code_so'].apply(get_vaste_ul)
 df_units['ul_asis'] = df_units['llng_asis'].apply(ul_asis)
 df_units['ul_tobe'] = df_units['llng_tobe'].apply(ul_tobe)
 df_units['ul_diff'] = df_units['ul_tobe'] - df_units['ul_asis']
-df_units['ul_tobe_herwerkt'] = df_units['llng_tobe_herwerkt'].apply(ul_tobe)
-df_units['ul_diff_herwerkt'] = df_units['ul_tobe_herwerkt'] - df_units['ul_asis']
-df_units['ul_diff_in_euros_herwerkt'] = df_units['ul_diff_herwerkt'] * 0.9657 * 69073 / 21.23
-df_units['ul_tobe_herwerkt_alle'] = df_units['llng_tobe_herwerkt_alle'].apply(ul_tobe)
-df_units['ul_diff_herwerkt_alle'] = df_units['ul_tobe_herwerkt_alle'] - df_units['ul_asis']
-df_units['ul_diff_in_euros_herwerkt_alle'] = df_units['ul_diff_herwerkt_alle'] * 0.9657 * 69073 / 21.23
 
 df_units['ul_per_lln_asis'] = (df_units['ul_asis'] + df_units['ul_vast'])/df_units['aantal_leerlingen']
 df_units['ul_per_lln_tobe'] = (df_units['ul_tobe'] + df_units['ul_vast'])/df_units['aantal_leerlingen']
 
 # Bereken en vergelijk directeurs
-df_units['directeurs_asis'] = df_units['unit_code_so'].apply(get_directeurs)
-df_units['directeur_tobe'] = df_units.apply(lambda row: get_directeur_tobe(row['llng_tobe'],
+df_units[['directeurs_vt_asis', 'directeurs_lo_asis']] = df_units['unit_code_so'].apply(get_directeurs)
+df_units['directeurs_asis'] = df_units['directeurs_vt_asis'] + df_units['directeurs_lo_asis']
+df_units['punten_dir_asis'] = df_units['directeurs_asis']*120
+df_units[['directeur_vt_tobe', 'dir_lesopdracht_tobe']] = df_units.apply(lambda row: get_directeur_tobe(row['llng_tobe'],
                                                                            row['aantal_leerlingen']), axis=1)
+df_units['directeur_tobe'] = df_units['directeur_vt_tobe'] + df_units['dir_lesopdracht_tobe']
+df_units['punten_dir_tobe'] = df_units['directeur_tobe']*120
 df_units['directeur_diff'] = df_units['directeur_tobe'] - df_units['directeurs_asis']
 
 df_units['lln_per_dir_asis'] = df_units['aantal_leerlingen']/df_units['directeurs_asis']

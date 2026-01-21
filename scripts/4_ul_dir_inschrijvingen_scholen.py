@@ -18,7 +18,7 @@ def merge_llngroep_dictionaries(string_dicts):
     # Uren-leraar op basis van inschrijvingen per leerlingengroep
     result = {}
     for key, value in inschr.items():
-        ul = dul.get_degressieve_uren_leraar(key, value, None)
+        ul = dul.get_degressieve_uren_leraar(key, value, None, {})
         result[key] = {
             'inschrijvingen': value,
             'uren-leraar': ul
@@ -38,14 +38,16 @@ def merge_llngroup_vul(string_dicts):
     return result
 
 def get_directeur(llngr, aantal):
+    if aantal == 0:
+        return pd.Series([0,0])
     g = '_'.join(llngr.keys())
-    if '3e graad' in g or '4e graad' in g or 'hbo' in g or 'n.v.t. (modulair) bso' in g:
+    if '3e graad' in g or '4e graad' in g or 'hbo' in g or 'n.v.t. (modulair) bso' in g or 'okan' in g:
         if aantal >= 83:
-            return 1
-        return 0
+            return pd.Series([1,0])
+        return pd.Series([0,1])
     if aantal >= 120:
-        return 1
-    return 0
+        return pd.Series([1,0])
+    return pd.Series([0,1])
 
 df_vestigingen = pd.read_excel(f'output/jaren/{sys.argv[1]}/3_vestigingsplaatsen_master.xlsx')
 
@@ -56,6 +58,6 @@ df_schoolnummers = df_vestigingen.groupby('schoolnummer', dropna=False).agg({
     'vaste_ul': 'sum',
     'aantal_inschrijvingen': 'sum'
 }).reset_index()
-df_schoolnummers['directeurs'] = df_schoolnummers.apply(lambda row: get_directeur(row['leerlingengroepen'], row['aantal_inschrijvingen']), axis=1)
+df_schoolnummers[['directeurs_vt', 'dir_lesopdracht']] = df_schoolnummers.apply(lambda row: get_directeur(row['leerlingengroepen'], row['aantal_inschrijvingen']), axis=1)
 
 df_schoolnummers.to_excel(f'output/jaren/{sys.argv[1]}/4_schoolnummers_llngroepen_ul_inschrijvingen.xlsx', index=False)
