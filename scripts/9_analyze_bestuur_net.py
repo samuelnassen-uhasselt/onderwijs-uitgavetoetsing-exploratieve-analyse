@@ -23,7 +23,6 @@ df_bestuur_units = df_units_met_inschrijvingen.groupby('schoolbestuur').agg(
     ul_tobe = ('ul_tobe', 'sum'),
     directeur_asis = ('directeurs_asis', 'sum'),
     directeur_tobe = ('directeur_tobe', 'sum'),
-    punten_directeur_tobe = ('punten_dir_tobe_herwerkt', 'sum'),
     leerlingen_laatste_jaar = ('leerlingen_laatste_jaar', 'sum'),
     vaste_ul_laatste_jaar = ('vaste_uren-leraar_laatste_jaar', 'sum'),
     deg_ul_laatste_jaar_asis = ('deg_uren-leraar_laatste_jaar_asis', 'sum'),
