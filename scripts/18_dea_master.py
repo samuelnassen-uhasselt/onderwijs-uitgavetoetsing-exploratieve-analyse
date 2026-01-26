@@ -91,7 +91,7 @@ def get_lln_okigroep(llngroepen, graad, ov, vp, jaar):
     if graad == 'H':
         return llngroepen['hbo']
     if graad == 'OKAN':
-        return llngroepen['n.v.t. (okan) n.v.t. (okan)']
+        return llngroepen['okan']
     try:
         return llngroepen[f'{graad}e graad {ov.lower()}']
     except:

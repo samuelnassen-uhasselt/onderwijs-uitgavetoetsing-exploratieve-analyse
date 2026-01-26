@@ -10,6 +10,8 @@ def get_leerlingengroep(graad, leerjaar, ov):
             return f'{graad} {leerjaar[-1]}'
     if graad == 'n.v.t. (hbo)':
         return 'hbo'
+    if graad == 'n.v.t. (okan)':
+        return 'okan'
     return f'{graad} {ov}'
 
 inschrijvingen = f"Brondata\\Inschrijvingen\\inschrijvingen-leerplicht-instellingen-dataset-{sys.argv[1]}-1feb.xlsx"

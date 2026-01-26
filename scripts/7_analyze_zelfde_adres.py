@@ -93,7 +93,7 @@ def get_llngroepen_tobe(llngroepen_asis):
                 result[key]['inschrijvingen'] += value['inschrijvingen']
 
     for key, value in result.items():
-        result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], None)
+        result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], False, {})
     return result
 
 def get_aantal_leerlingen(llngroepen):

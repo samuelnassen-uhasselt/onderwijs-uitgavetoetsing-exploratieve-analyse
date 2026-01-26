@@ -86,7 +86,7 @@ def get_llngroepen_for_vestingsplaatsen(vps):
 
     return result
 
-def get_llngroepen_tobe(llngroepen_asis, herwerkt):
+def get_llngroepen_tobe(llngroepen_asis):
     result = {}
     for vp, llng in llngroepen_asis.items():
         if pd.notna(llng):
@@ -96,7 +96,7 @@ def get_llngroepen_tobe(llngroepen_asis, herwerkt):
                 result[key]['inschrijvingen'] += value['inschrijvingen']
 
     for key, value in result.items():
-        result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], herwerkt, {})
+        result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], False, {})
     return result
 
 def get_llngroepen_set(llngroepen):
@@ -292,7 +292,7 @@ df_units['scholengemeenschap'] = df_units['unit_code_so'].apply(get_scholengemee
 
 # Zoek leerlingengroepe as-is op en bereken to-be
 df_units['llng_asis'] = df_units['unit_code_so'].apply(get_llngroepen_for_vestingsplaatsen)
-df_units['llng_tobe'] = df_units.apply(lambda row: get_llngroepen_tobe(row['llng_asis'], herwerkt=None), axis=1)
+df_units['llng_tobe'] = df_units.apply(lambda row: get_llngroepen_tobe(row['llng_asis']), axis=1)
 df_units['leerlingengroepen'] = df_units['llng_asis'].apply(get_llngroepen_set)
 df_units['aantal_leerlingen'] = df_units['llng_tobe'].apply(get_aantal_leerlingen)
 

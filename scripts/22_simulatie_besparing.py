@@ -3,13 +3,19 @@ import pandas as pd
 import degressieve_ul_llngroepen as dul
 import ast
 import re
+import os
+import subprocess
+
+
+if 'ul_herwerking.xlsx' not in os.listdir('output'):
+    subprocess.run(['python', 'scripts\\herwerking_ul_llngroepen.py'])
 
 wb = load_workbook('Brondata\\simulatie_input.xlsx', data_only=True)
 ws = wb['input']
 
 sim_type = 'BEDRAG'
 
-def get_llngroepen_alt(llngroepen, herwerkt, d):
+def get_llngroepen_alt(llngroepen, d):
     llngroepen = ast.literal_eval(re.sub(r'\bnan\b', 'None', llngroepen))
     result = {}
     for vp, llng in llngroepen.items():
@@ -20,7 +26,7 @@ def get_llngroepen_alt(llngroepen, herwerkt, d):
                 result[key]['inschrijvingen'] += value['inschrijvingen']
 
     for key, value in result.items():
-        result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], herwerkt, d)
+        result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], True, d)
     return result
 
 def ul_alt(llngroepen):
@@ -32,18 +38,43 @@ def ul_alt(llngroepen):
 def punten_dir_alt(aantal, punten_per_lln):
     return aantal*punten_per_lln
 
-def ul_punten_bedrag():
-    df_ul_nul = pd.read_excel('output\\oefening_ul_herwerking.xlsx')
+def get_nieuwe_coef(groep, lln_tobe, ul):
+    try:
+        coef = dul.degressieve_ul[groep]['coef']
+    except:
+        return [0,0,0,0]
+    
+    
+    lln_tobe = ast.literal_eval(lln_tobe)
+    ul_herverdeeld = 0
 
-    ul_besparing_nul = ws['B4'].value
+    for i in range(len(coef) - 1, -1, -1):
+        for j in range(i, len(coef)):
+            coef[j] += (ul - ul_herverdeeld)/sum(lln_tobe[i:])
+        if i==0 or coef[i] < coef[i-1]:
+            break
+        else:
+            ul_herverdeeld = 0
+            for j in range(i, len(coef)):
+                coef[j] = coef[i-1]
+                ul_herverdeeld += coef[j] * lln_tobe[j]
+        
+    return coef
+
+def ul_punten_bedrag():
+    df_ul_herverdeling = pd.read_excel('output\\ul_herwerking.xlsx')
+
+    ul_besparing_units = ws['B4'].value
     ul_besparing_alt = ws['B7'].value
     print(f'BESPARING UREN-LERAAR: {ul_besparing_alt}')
 
-    ul_besp_perc = 1-(ul_besparing_alt/ul_besparing_nul)
-
-    df_ul_nul['coef_alt'] = df_ul_nul['verlies_per_niet_gefinancieerde_lln_tobe'] * ul_besp_perc
-    df_ul_alt = df_ul_nul[['leerlingengroep', 'coef_alt']]
-    d = {'DEEL' : dict(zip(df_ul_alt['leerlingengroep'], df_ul_alt['coef_alt']))}
+    ul_herverdeling = ul_besparing_units - ul_besparing_alt
+    df_ul_herverdeling['herverdeelde_ul'] = df_ul_herverdeling['herverdeling_percent']*ul_herverdeling
+    df_ul_herverdeling['coef_alt'] = df_ul_herverdeling.apply(lambda row: get_nieuwe_coef(
+        row['leerlingengroep'], row['lln_schijven_tobe'], row['herverdeelde_ul']
+    ), axis=1)
+    d = dict(zip(df_ul_herverdeling['leerlingengroep'],
+                 df_ul_herverdeling['coef_alt']))
 
     punten_dir_asis = 992*120
     aantal_lln = 476901
@@ -54,10 +85,11 @@ def ul_punten_bedrag():
 
     return d, punten_dir_per_lln_besp
 
+
 if sim_type == 'BEDRAG':
     ul_dict, ptn_dir_lln = ul_punten_bedrag()
 elif sim_type == 'COEF':
-    ul_dict = { 'DEEL': {
+    ul_dict = {
         '1e graad A': ws['B12'].value,
         '1e graad B': ws['B13'].value,
         '2e graad bso': ws['B14'].value,
@@ -66,18 +98,18 @@ elif sim_type == 'COEF':
         '3e graad tso': ws['B17'].value,
         '2e graad kso': ws['B18'].value,
         '3e graad kso': ws['B19'].value,
-        'n.v.t. (okan) n.v.t. (okan)': ws['B20'].value,
+        'okan': ws['B20'].value,
         'hbo': ws['B21'].value,
         '2e graad aso': ws['B22'].value,
         '3e graad aso': ws['B23'].value,
         'n.v.t. (modulair) bso': ws['B24'].value,
         '4e graad bso': ws['B25'].value,
-    }}
+    }
     ptn_dir_lln = ws['G13'].value
 
 
 df_units = pd.read_excel('output\\jaren\\2024-2025\\8_analyse_units.xlsx')
-df_units['llngr_ul_alt'] = df_units.apply(lambda row: get_llngroepen_alt(row['llng_asis'], 'DEEL', ul_dict), axis=1)
+df_units['llngr_ul_alt'] = df_units.apply(lambda row: get_llngroepen_alt(row['llng_asis'], ul_dict), axis=1)
 df_units['ul_alt'] = df_units['llngr_ul_alt'].apply(ul_alt)
 df_units['punten_dir_alt'] = df_units.apply(lambda row: punten_dir_alt(row['aantal_leerlingen'], ptn_dir_lln), axis=1)
 df_units = df_units[df_units['aantal_leerlingen']>0]
@@ -85,11 +117,10 @@ df_units = df_units[df_units['aantal_leerlingen']>0]
 ul_alt_tot = df_units['ul_vast'].sum() + df_units['ul_alt'].sum()
 ptn_dir_alt_tot = df_units['punten_dir_alt'].sum()
 
-d = ul_dict['DEEL']
-d['punten_directeur_per_lln'] = ptn_dir_lln
-d['lln_per_directeur'] = 120/ptn_dir_lln
-d['punten_directuer_per_ul'] = ptn_dir_alt_tot/ul_alt_tot
-d['uren-leraar_per_directeur'] = 120/d['punten_directuer_per_ul']
+ul_dict['punten_directeur_per_lln'] = ptn_dir_lln
+ul_dict['lln_per_directeur'] = 120/ptn_dir_lln
+ul_dict['punten_directuer_per_ul'] = ptn_dir_alt_tot/ul_alt_tot
+ul_dict['uren-leraar_per_directeur'] = 120/ul_dict['punten_directuer_per_ul']
 
 agg_cols = ['aantal_leerlingen', 'ul_asis', 'ul_alt', 'punten_dir_asis', 'punten_dir_alt']
 group_cols = ['schoolbestuur', 'scholengemeenschap', 'net']
@@ -130,5 +161,5 @@ with pd.ExcelWriter(f'output\\analyse_{sim_type}.xlsx') as writer:
             ]]
         df.to_excel(writer, sheet_name=groep, index=False)
         
-    df_coef = pd.DataFrame(list(d.items()), columns=['coëfficiënt', 'waarde'])
+    df_coef = pd.DataFrame(list(ul_dict.items()), columns=['coëfficiënt', 'waarde'])
     df_coef.to_excel(writer, sheet_name='coëfficiënten', index=False)
