@@ -43,8 +43,7 @@ def get_nieuwe_coef(groep, lln_tobe, ul):
         coef = dul.degressieve_ul[groep]['coef']
     except:
         return [0,0,0,0]
-    
-    
+
     lln_tobe = ast.literal_eval(lln_tobe)
     ul_herverdeeld = 0
 
@@ -136,6 +135,7 @@ uitleg_var = {
     'punten_dir_diff': 'Verschil punten GBE voor directeurs tussen AS-IS en TO-BE (punten_dir_alt - punten_dir_asis)',
     'punten_dir_diff_euro': 'Verschil punten GBE voor directeurs uitgedrukt in euro (punten_dir_diff * 752,4)',
     'sheet coëfficiënten': 'De gebruikte coëfficiënten voor degressieve uren-leraar per leerlingengroep en het aantal studenten per directeur (en afgeleide punten directeur per student)'
+    # VOEG COEF TOE
 }
 
 with pd.ExcelWriter(f'output\\analyse_{sim_type}.xlsx') as writer:
