@@ -3,6 +3,7 @@ import numpy as np
 import ast
 import os
 import get_data
+import pickle
 
 df_units = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Units')
 df_bestuur = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Bestuur')
@@ -18,6 +19,24 @@ df_master_bestuur = (df_master.copy()
                      .astype({'schoolbestuur': str, 'jaar': str})
                      .sort_values(by=['schoolbestuur', 'jaar'])
                      .set_index(['schoolbestuur', 'jaar']))
+
+if 'modulair_dfs_dict.pkl' not in os.listdir('output'):
+    modulair_dfs = {}
+    folder = 'output/jaren'
+    jaren_folders = [f for f in os.listdir(folder)]
+    for jaar in jaren_folders:
+        inschrijvingen = pd.read_excel(f'Brondata/Inschrijvingen/inschrijvingen-leerplicht-instellingen-dataset-{jaar}-1feb.xlsx')
+        inschrijvingen = inschrijvingen[
+            (inschrijvingen['onderwijsvorm'] == 'bso') &
+            (inschrijvingen['graad_so_code'] == 'n.v.t. (modulair)')
+        ]
+        modulair_dfs[jaar] = inschrijvingen
+    
+    with open('output\\modulair_dfs_dict.pkl', 'wb') as f:
+        pickle.dump(modulair_dfs, f)
+else:
+    with open('output\\modulair_dfs_dict.pkl', 'rb') as f:
+        modulair_dfs = pickle.load(f)
 
 def get_jaar(jaar_code):
     return f'{int(jaar_code)}-{int(jaar_code) + 1}'
