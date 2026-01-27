@@ -5,6 +5,7 @@ import ast
 import re
 import os
 import subprocess
+import get_data
 
 
 if 'ul_herwerking.xlsx' not in os.listdir('output'):
@@ -146,8 +147,12 @@ with pd.ExcelWriter(f'output\\analyse_{sim_type}.xlsx') as writer:
     df_units['ul_diff_euro'] = df_units['ul_diff']*0.9657*69073/21.23
     df_units['punten_dir_diff'] = df_units['punten_dir_alt'] - df_units['punten_dir_asis']
     df_units['punten_dir_diff_euro'] = df_units['punten_dir_diff'] * 752.4
-    df_units_xslx = df_units[['unit_code_so', 'aantal_leerlingen', 'ul_asis', 'ul_alt', 'ul_diff', 'ul_diff_euro',
-        'punten_dir_asis', 'punten_dir_alt', 'punten_dir_diff', 'punten_dir_diff_euro'
+    df_units['diff_euro_totaal'] = df_units['ul_diff_euro'] + df_units['punten_dir_diff_euro']
+    df_units['oki'] = df_units.apply(lambda row: get_data.get_oki(row['unit_code_so'], '2023-2024'), axis=1)
+    df_units_xslx = df_units[['unit_code_so', 'aantal_leerlingen', 
+        'ul_asis', 'ul_alt', 'ul_diff', 'ul_diff_euro',
+        'punten_dir_asis', 'punten_dir_alt', 'punten_dir_diff', 'punten_dir_diff_euro',
+        'diff_euro_totaal', 'oki'
         ]]
     df_units_xslx.to_excel(writer, sheet_name='units', index=False)
     for groep in group_cols:
@@ -156,10 +161,19 @@ with pd.ExcelWriter(f'output\\analyse_{sim_type}.xlsx') as writer:
         df['ul_diff_euro'] = df['ul_diff']*0.9657*69073/21.23
         df['punten_dir_diff'] = df['punten_dir_alt'] - df['punten_dir_asis']
         df['punten_dir_diff_euro'] = df['punten_dir_diff'] * 752.4
+        df['diff_euro_totaal'] = df['ul_diff_euro'] + df['punten_dir_diff_euro']
+        df['oki'] = df_units.groupby(groep).apply(
+            lambda row: get_data.get_oki('_'.join(row['unit_code_so']), '2023-2024'),
+            include_groups=False
+        ).values
         df = df[[groep, 'aantal_leerlingen', 'ul_asis', 'ul_alt', 'ul_diff', 'ul_diff_euro',
-            'punten_dir_asis', 'punten_dir_alt', 'punten_dir_diff', 'punten_dir_diff_euro'
+            'punten_dir_asis', 'punten_dir_alt', 'punten_dir_diff', 'punten_dir_diff_euro', 
+            'diff_euro_totaal', 'oki'
             ]]
         df.to_excel(writer, sheet_name=groep, index=False)
         
     df_coef = pd.DataFrame(list(ul_dict.items()), columns=['coëfficiënt', 'waarde'])
     df_coef.to_excel(writer, sheet_name='coëfficiënten', index=False)
+
+
+df_oki = pd.read_excel('Brondata/Studiebewijzen/20251112-spending review UHasselt.xlsx', sheet_name='OKI')

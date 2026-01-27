@@ -1,5 +1,6 @@
 Brondata/**/*.xlsx
 output/**/*.xlsx
+output/**/*.pkl
 !Brondata/uren-leraar-structuuronderdelen.xlsx
 pyDEA-test.py
 __pycache__/
