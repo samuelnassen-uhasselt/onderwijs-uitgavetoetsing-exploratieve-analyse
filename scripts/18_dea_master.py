@@ -10,7 +10,6 @@ df_bestuur = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Bestuur')
 df_doorstroom_pg = pd.read_excel('Brondata/Doorstroom/UHasselt_doorstroomSR_dataaanvraag2025.xlsx', sheet_name='Participatiegraad')
 df_doorstroom_sr = pd.read_excel('Brondata/Doorstroom/UHasselt_doorstroomSR_dataaanvraag2025.xlsx', sheet_name='Studierendement')
 df_sb = pd.read_excel('Brondata/Studiebewijzen/20251112-spending review UHasselt.xlsx', sheet_name='SB')
-df_oki = pd.read_excel('Brondata/Studiebewijzen/20251112-spending review UHasselt.xlsx', sheet_name='OKI')
 df_vsv = pd.read_excel('Brondata/Studiebewijzen/20251112-spending review UHasselt.xlsx', sheet_name='VSV')
 df_master = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Master')
 df_master_vp = df_master.copy()
@@ -19,24 +18,6 @@ df_master_bestuur = (df_master.copy()
                      .astype({'schoolbestuur': str, 'jaar': str})
                      .sort_values(by=['schoolbestuur', 'jaar'])
                      .set_index(['schoolbestuur', 'jaar']))
-
-if 'modulair_dfs_dict.pkl' not in os.listdir('output'):
-    modulair_dfs = {}
-    folder = 'output/jaren'
-    jaren_folders = [f for f in os.listdir(folder)]
-    for jaar in jaren_folders:
-        inschrijvingen = pd.read_excel(f'Brondata/Inschrijvingen/inschrijvingen-leerplicht-instellingen-dataset-{jaar}-1feb.xlsx')
-        inschrijvingen = inschrijvingen[
-            (inschrijvingen['onderwijsvorm'] == 'bso') &
-            (inschrijvingen['graad_so_code'] == 'n.v.t. (modulair)')
-        ]
-        modulair_dfs[jaar] = inschrijvingen
-    
-    with open('output\\modulair_dfs_dict.pkl', 'wb') as f:
-        pickle.dump(modulair_dfs, f)
-else:
-    with open('output\\modulair_dfs_dict.pkl', 'rb') as f:
-        modulair_dfs = pickle.load(f)
 
 def get_jaar(jaar_code):
     return f'{int(jaar_code)}-{int(jaar_code) + 1}'
@@ -61,89 +42,11 @@ df_sb['jaar'] = df_sb['Schooljaar code'].apply(get_jaar)
 df_sb.set_index(['vp_code', 'jaar'], inplace=True)
 df_sb = df_sb.sort_index()
 
-# OKI scores
-df_oki['vp_code'] = df_oki['Instellingscode instelling']*100 + df_oki['Intern volgnummer vestigingsplaats']
-df_oki['jaar'] = df_oki['Schooljaar code'].apply(get_jaar)
-df_oki.set_index(['vp_code', 'jaar'], inplace=True)
-df_oki = df_oki.sort_index()
-
 # Vroegtijdig Schoolverlaters
 df_vsv['vp_code'] = df_vsv['Instellingscode instelling op moment VSV']*100 + df_vsv['Intern volgnummer vestigingsplaats op moment VSV']
 df_vsv['jaar'] = df_vsv['Schooljaar VSV'].apply(get_jaar)
 df_vsv.set_index(['vp_code', 'jaar'], inplace=True)
 df_vsv = df_vsv.sort_index()
-
-def get_som_kolommen(vps, jaar, columns, df_c):
-    if pd.notna(vps):
-        vps = vps.replace('SO_', '')
-    else:
-        return
-    result = [0] * len(columns)
-
-    for vp in vps.split('_'):
-        try:
-            sr = df_c.loc[(int(vp), jaar)]
-            for i, col in enumerate(columns):
-                result[i] += np.sum(sr[col])
-
-        except:
-            continue
-    return pd.Series(result)
-
-def get_lln_okigroep(llngroepen, graad, ov, vp, jaar):
-    aantal = 0
-    if graad == '1':
-        for llngr in llngroepen.keys():
-            if '1e graad' in llngr:
-                aantal += llngroepen[llngr]
-        return aantal
-    if graad == 'H':
-        return llngroepen['hbo']
-    if graad == 'OKAN':
-        return llngroepen['okan']
-    try:
-        return llngroepen[f'{graad}e graad {ov.lower()}']
-    except:
-        inschrijvingen = modulair_dfs[jaar]
-        inschrijvingen = inschrijvingen[
-            (inschrijvingen['instellingsnummer'] == int(vp[:-2])) &
-            (inschrijvingen['intern_volgnr_vpl'] == int(vp[-2:]))
-        ]
-        aantal  = 0
-        for groep, inschr in zip(
-            inschrijvingen['administratieve_groep'], inschrijvingen['aantal_inschrijvingen']):
-            if '{graad}e gr' in groep:
-                aantal += inschr
-        return aantal
-
-def get_oki(vps, jaar, oki_df):
-    lln_tot = 0
-    score_tot = 0
-
-    if pd.notna(vps):
-        vps = vps.replace('SO_', '')
-    else:
-        return
-    for vp in vps.split('_'):
-        try:
-            llngroepen = df_master_vp.loc[(int(vp), jaar)]['leerlingengroepen_vp']
-            llngroepen = ast.literal_eval(llngroepen)
-            for key, value in llngroepen.items():
-                lln_tot += value
-        except:
-            continue
-        try:
-            oki = oki_df.loc[(int(vp), jaar)]
-        except:
-            continue
-        for graad, ov, score_oki in zip(
-            oki['Graad SO inclusief modulair code'], oki['Onderwijsvorm code'], oki['gemiddelde OKI']):
-                lln = get_lln_okigroep(llngroepen, graad, ov, vp, jaar)
-                score_tot += lln*score_oki
-
-    if lln_tot == 0:
-        return 0
-    return score_tot/lln_tot
 
 def get_finaliteit(llngroepen):
     aso = False
@@ -171,7 +74,7 @@ def get_finaliteit(llngroepen):
 
 def get_dataframe_met_info(df, vp_codes_kolom):
     df[['loopbanen_HO', 'rechtstreeks_HO', 'niet_rechtstreeks_HO', 'niet_HO']] = df.apply(
-        lambda row: get_som_kolommen(
+        lambda row: get_data.get_som_kolommen(
             row[vp_codes_kolom], 
             row['jaar'],
             ['Aantal loopbanen HO','Aantal wel rechtstreeks doorgestroomd naar HO',
@@ -180,7 +83,7 @@ def get_dataframe_met_info(df, vp_codes_kolom):
             ), axis=1)
     
     df[['aantal_studietrajecten', 'opgenomen_studiepunten', 'verworven_studiepunten']] = df.apply(
-        lambda row: get_som_kolommen(
+        lambda row: get_data.get_som_kolommen(
             row[vp_codes_kolom], 
             row['jaar'],
             ['Aantal studietrajecten','Opgenomen studiepunten als generatiestudent volgens de instelling',
@@ -190,7 +93,7 @@ def get_dataframe_met_info(df, vp_codes_kolom):
     df['studierendement'] = df['verworven_studiepunten']/df['opgenomen_studiepunten']
 
     df[['aantal_studiebewijzen', 'aantal_diploma\'s', 'aantal_getuigschriften']] = df.apply(
-        lambda row: get_som_kolommen(
+        lambda row: get_data.get_som_kolommen(
             row[vp_codes_kolom], 
             row['jaar'],
             ['Aantal studiebewijzen', 'Aantal diploma\'s', 'Aantal studiegetuigschriften'],
@@ -198,14 +101,13 @@ def get_dataframe_met_info(df, vp_codes_kolom):
         ), axis=1)
 
     df['gemiddelde_oki'] = df.apply(
-        lambda row: get_oki(
+        lambda row: get_data.get_oki(
             row[vp_codes_kolom], 
-            row['jaar'],
-            df_oki
+            row['jaar']
         ), axis=1)
 
     df[['vsv_teller', 'vsv_noemer']] = df.apply(
-        lambda row: get_som_kolommen(
+        lambda row: get_data.get_som_kolommen(
             row[vp_codes_kolom], 
             row['jaar'],
             ['Teller VSV', 'Noemer VSV'],
