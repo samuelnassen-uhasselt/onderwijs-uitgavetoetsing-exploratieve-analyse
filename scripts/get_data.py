@@ -11,9 +11,25 @@ def get_jaar(jaar_code):
 df_master_vp = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Master')
 df_master_vp.set_index(['vestigingsplaats', 'jaar'], inplace=True)
 
-df_oki = pd.read_excel('Brondata/Studiebewijzen/20251112-spending review UHasselt.xlsx', sheet_name='OKI')
-df_oki['vp_code'] = df_oki['Instellingscode instelling']*100 + df_oki['Intern volgnummer vestigingsplaats']
-df_oki['jaar'] = df_oki['Schooljaar code'].apply(get_jaar)
+df_oki_17_23 = pd.read_excel('Brondata\\Studiebewijzen\\20251112-spending review UHasselt.xlsx', sheet_name='OKI')
+df_oki_17_23['vp_code'] = df_oki_17_23['Instellingscode instelling']*100 + df_oki_17_23['Intern volgnummer vestigingsplaats']
+df_oki_17_23['jaar'] = df_oki_17_23['Schooljaar code'].apply(get_jaar)
+df_oki_17_23['Aantal inschrijvingen'] = 'missend 17-23'
+
+df_oki_24 = pd.read_excel('Brondata\\OKI\\SO311_VPL_2425.xlsx')
+df_oki_24['vp_code'] = df_oki_24['Instellingscode']*100 + df_oki_24['Intern volgnummer vestigingsplaats']
+df_oki_24['gemiddelde OKI'] = df_oki_24['Onderwijs Kansarmoede Indicator (OKI)']/df_oki_24['Aantal inschrijvingen']
+df_oki_24[['Graad SO inclusief modulair code', 'Onderwijsvorm code']] = pd.Series(['missend 24', 'missend 24'])
+df_oki_24 = df_oki_24.rename(
+    columns={
+        'Huidig schooljaar': 'jaar',
+        'Instellingscode': 'Instellingscode instelling', 
+    }
+)
+df_oki_24 = df_oki_24[['Schooljaar code', 'Instellingscode instelling', 'Intern volgnummer vestigingsplaats',
+                       'Graad SO inclusief modulair code', 'Onderwijsvorm code', 'gemiddelde OKI', 'vp_code', 'jaar', 'Aantal inschrijvingen']]
+
+df_oki = pd.concat([df_oki_17_23, df_oki_24], ignore_index=True)
 df_oki.set_index(['vp_code', 'jaar'], inplace=True)
 df_oki = df_oki.sort_index()
 
@@ -71,6 +87,16 @@ def get_oki(vps, jaar):
     else:
         return
     for vp in vps.split('_'):
+        if jaar == '2024-2025':
+            try:
+                oki = df_oki.loc[(int(vp), jaar)]
+                inschr = df_master_vp.loc[(int(vp), jaar)]['aantal_inschrijvingen_vp']
+                if pd.notna(inschr):
+                    lln_tot += inschr
+                    score_tot += inschr * oki['gemiddelde OKI'].sum()
+            except:
+                continue
+            continue
         try:
             llngroepen = df_master_vp.loc[(int(vp), jaar)]['leerlingengroepen_vp']
             llngroepen = ast.literal_eval(llngroepen)
