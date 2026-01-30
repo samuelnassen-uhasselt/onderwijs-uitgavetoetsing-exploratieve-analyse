@@ -140,7 +140,7 @@ uitleg_var = {
     'sheet coëfficiënten': 'De gebruikte coëfficiënten voor degressieve uren-leraar per leerlingengroep en het aantal studenten/uren-leraar per directeur (en afgeleide punten directeur per student/uren-leraar)'
 }
 
-with pd.ExcelWriter(f'output\\analyse_{sim_type}.xlsx') as writer:
+with pd.ExcelWriter(f'output\\simulatie_alternatief_{sim_type}.xlsx') as writer:
     df_uitleg = pd.DataFrame(list(uitleg_var.items()), columns=['variabele', 'uitleg'])
     df_uitleg.to_excel(writer, sheet_name='uitleg variabelen', index=False)
 
@@ -175,6 +175,3 @@ with pd.ExcelWriter(f'output\\analyse_{sim_type}.xlsx') as writer:
         
     df_coef = pd.DataFrame(list(ul_dict.items()), columns=['coëfficiënt', 'waarde'])
     df_coef.to_excel(writer, sheet_name='coëfficiënten', index=False)
-
-
-df_oki = pd.read_excel('Brondata/Studiebewijzen/20251112-spending review UHasselt.xlsx', sheet_name='OKI')
