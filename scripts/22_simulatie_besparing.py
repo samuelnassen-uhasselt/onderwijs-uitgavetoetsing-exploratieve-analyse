@@ -7,6 +7,7 @@ import os
 import subprocess
 import get_data
 
+# import flask/fastapi (test postman)
 
 if 'ul_herwerking.xlsx' not in os.listdir('output'):
     subprocess.run(['python', 'scripts\\herwerking_ul_llngroepen.py'])
@@ -175,3 +176,20 @@ with pd.ExcelWriter(f'output\\simulatie_alternatief_{sim_type}.xlsx') as writer:
         
     df_coef = pd.DataFrame(list(ul_dict.items()), columns=['coëfficiënt', 'waarde'])
     df_coef.to_excel(writer, sheet_name='coëfficiënten', index=False)
+
+
+# request (teacher_hours, points_director)
+
+# amount money: response: excel file, coefficients
+#               coefficients: 
+# {
+#     '1e graad A': []
+#     '1e graad B': []
+#     ...
+#     punten_dir: float
+# }
+
+
+# request (coefficients)
+
+# coefficients: response: excel file, ul_besparing, dir_besparing, totaal_besparing
