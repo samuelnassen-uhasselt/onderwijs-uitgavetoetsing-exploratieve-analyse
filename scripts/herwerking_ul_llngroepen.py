@@ -48,8 +48,7 @@ df['verlies_tov_max'] = df.apply(lambda row: max(0, row['ul_verlies']/max_verl),
 som_verlies_tov_max = df['verlies_tov_max'].sum()
 df['herverdeling_percent'] = df['verlies_tov_max']/som_verlies_tov_max
 
-df['verlies_tov_max_met_neg'] = df['ul_verlies']/max_verl
-som_verlies_tov_max_neg = df['verlies_tov_max_met_neg'].sum()
-df['herverdeling_met_neg_percent'] = df['verlies_tov_max_met_neg']/som_verlies_tov_max_neg
+df = df[['leerlingengroep', 'aantal_lln', 'lln_schijven_asis', 'lln_schijven_tobe', 'ul_asis', 'ul_tobe', 
+         'ul_verlies', 'herverdeling_percent']]
 
 df.to_excel('output\\ul_herwerking.xlsx', index=False)

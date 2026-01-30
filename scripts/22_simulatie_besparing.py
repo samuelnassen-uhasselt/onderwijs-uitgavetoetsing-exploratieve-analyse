@@ -122,7 +122,7 @@ ul_dict['lln_per_directeur'] = 120/ptn_dir_lln
 ul_dict['punten_directuer_per_ul'] = ptn_dir_alt_tot/ul_alt_tot
 ul_dict['uren-leraar_per_directeur'] = 120/ul_dict['punten_directuer_per_ul']
 
-agg_cols = ['aantal_leerlingen', 'ul_asis', 'ul_alt', 'punten_dir_asis', 'punten_dir_alt']
+agg_cols = ['aantal_leerlingen', 'ul_vast', 'ul_asis', 'ul_alt', 'punten_dir_asis', 'punten_dir_alt']
 group_cols = ['schoolbestuur', 'scholengemeenschap', 'net']
 
 uitleg_var = {
@@ -150,7 +150,7 @@ with pd.ExcelWriter(f'output\\analyse_{sim_type}.xlsx') as writer:
     df_units['punten_dir_diff_euro'] = df_units['punten_dir_diff'] * 752.4
     df_units['diff_euro_totaal'] = df_units['ul_diff_euro'] + df_units['punten_dir_diff_euro']
     df_units['oki'] = df_units.apply(lambda row: get_data.get_oki(row['unit_code_so'], '2024-2025'), axis=1)
-    df_units_xslx = df_units[['unit_code_so', 'aantal_leerlingen', 
+    df_units_xslx = df_units[['unit_code_so', 'aantal_leerlingen', 'ul_vast',
         'ul_asis', 'ul_alt', 'ul_diff', 'ul_diff_euro',
         'punten_dir_asis', 'punten_dir_alt', 'punten_dir_diff', 'punten_dir_diff_euro',
         'diff_euro_totaal', 'oki'
@@ -167,7 +167,7 @@ with pd.ExcelWriter(f'output\\analyse_{sim_type}.xlsx') as writer:
             lambda row: get_data.get_oki('_'.join(row['unit_code_so']), '2024-2025'),
             include_groups=False
         ).values
-        df = df[[groep, 'aantal_leerlingen', 'ul_asis', 'ul_alt', 'ul_diff', 'ul_diff_euro',
+        df = df[[groep, 'aantal_leerlingen', 'ul_vast', 'ul_asis', 'ul_alt', 'ul_diff', 'ul_diff_euro',
             'punten_dir_asis', 'punten_dir_alt', 'punten_dir_diff', 'punten_dir_diff_euro', 
             'diff_euro_totaal', 'oki'
             ]]
