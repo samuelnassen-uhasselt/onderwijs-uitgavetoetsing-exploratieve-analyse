@@ -91,20 +91,20 @@ if sim_type == 'BEDRAG':
     ul_dict, ptn_dir_lln = ul_punten_bedrag()
 elif sim_type == 'COEF':
     ul_dict = {
-        '1e graad A': ws['B12'].value,
-        '1e graad B': ws['B13'].value,
-        '2e graad bso': ws['B14'].value,
-        '2e graad tso': ws['B15'].value,
-        '3e graad bso': ws['B16'].value,
-        '3e graad tso': ws['B17'].value,
-        '2e graad kso': ws['B18'].value,
-        '3e graad kso': ws['B19'].value,
-        'okan': ws['B20'].value,
-        'hbo': ws['B21'].value,
-        '2e graad aso': ws['B22'].value,
-        '3e graad aso': ws['B23'].value,
-        'n.v.t. (modulair) bso': ws['B24'].value,
-        '4e graad bso': ws['B25'].value,
+        '1e graad A': [cell.value for cell in ws['B12:E12'][0]],
+        '1e graad B': [cell.value for cell in ws['B13:E13'][0]],
+        '2e graad bso': [cell.value for cell in ws['B14:E14'][0]],
+        '2e graad tso': [cell.value for cell in ws['B15:E15'][0]],
+        '3e graad bso': [cell.value for cell in ws['B16:E16'][0]],
+        '3e graad tso': [cell.value for cell in ws['B17:E17'][0]],
+        '2e graad kso': [cell.value for cell in ws['B18:E18'][0]],
+        '3e graad kso': [cell.value for cell in ws['B19:E19'][0]],
+        'okan': [cell.value for cell in ws['B20:E20'][0]],
+        'hbo': [cell.value for cell in ws['B21:E21'][0]],
+        '2e graad aso': [cell.value for cell in ws['B22:E22'][0]],
+        '3e graad aso': [cell.value for cell in ws['B23:E23'][0]],
+        'n.v.t. (modulair) bso': [cell.value for cell in ws['B24:E24'][0]],
+        '4e graad bso': [cell.value for cell in ws['B25:E25'][0]],
     }
     ptn_dir_lln = ws['G13'].value
 
