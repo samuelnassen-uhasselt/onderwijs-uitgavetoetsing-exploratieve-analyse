@@ -8,30 +8,9 @@ schooljaar = sys.argv[1]
 
 df_laatste_jaar = pd.read_excel(f'output/jaren/{schooljaar}/1_inschrijvingen_vestigingen.xlsx', sheet_name='Laatste Jaar')
 df_laatste_jaar.set_index('vestigingsplaats', inplace=True)
-df_werkingsmiddelen = pd.read_excel(f'Brondata\\Omkadering\\WT_HS311_2017_2024.xlsx')
-jaar = int(schooljaar.split('-')[0])
-df_werkingsmiddelen = df_werkingsmiddelen[df_werkingsmiddelen['schooljaar'] == jaar]
-df_werkingsmiddelen.set_index('instellingsnummer', inplace=True)
-
 
 def get_jaar(jaar_code):
     return f'{int(jaar_code)}-{int(jaar_code) + 1}'
-
-df_omkadering = pd.read_excel('Brondata\\Omkadering\\UHasselt_omkadering_2016_2025.xlsx')
-
-df_omkadering['aanwendbare_eenheden'] = df_omkadering['aantal_eenheden'] * df_omkadering['aanwendingspct']/100
-df_omkadering['jaar'] = df_omkadering['schooljaar'].apply(get_jaar)
-df_omkadering = df_omkadering.groupby([
-    'jaar', 'school', 'ko_srt_omkadering', 'ko_eenheid'])['aanwendbare_eenheden'].max().reset_index()
-
-df_omkadering = df_omkadering.pivot_table(
-    index=['jaar', 'school'],
-    columns='ko_srt_omkadering',
-    values='aanwendbare_eenheden',
-    aggfunc='sum',
-    fill_value=0
-)
-
 
 adres_hernoeming = {
     'Essen, Rouwmoer 7_B':'Essen, Rouwmoer 7B',
@@ -171,63 +150,6 @@ def get_lambert(row):
             return pd.Series(get_coords(adres))
     return pd.Series([lx, ly])
 
-def get_werkingsmiddelen(row, laatste, aso):
-    inschr_inst = row['aantal_inschrijvingen_inst']
-    if laatste:
-        if aso:
-            inschr_part = row['lln_laatste_jaar_aso']
-        else:
-            inschr_part = row['lln_laatste_jaar']
-    else:
-        inschr_part = row['aantal_inschrijvingen_vp']
-
-    try:
-        bedrag = df_werkingsmiddelen['uitbetaald bedrag'].loc[row['schoolnummer']]
-        return (inschr_part * bedrag/inschr_inst)
-    except:
-        return 0
-
-def get_extra_omkadering(row, laatste, aso):
-    inschr_inst = row['aantal_inschrijvingen_inst']
-    if laatste:
-        if aso:
-            inschr_part = row['lln_laatste_jaar_aso']
-        else:
-            inschr_part = row['lln_laatste_jaar']
-    else:
-        inschr_part = row['aantal_inschrijvingen_vp']
-    
-    try:
-        verhouding = inschr_part/inschr_inst
-    except:
-        return pd.Series([0,0,0])
-
-    try:
-        omk = df_omkadering.loc[(schooljaar, row['schoolnummer'])]
-    except:
-        return pd.Series([0,0,0])
-    
-    # TODO: FORFAITAIR / MINIMUM
-
-    ul = omk[['Aanvangsbegeleiding SO', 'Extra uren-leraar vervolgcoach', 'Extra uren-leraar duaal', 
-              'Hertelling uren-leraar capaciteit', 'Ondersteuning kerntaak SO', 'TOAH SO', 
-              'TOAH voor jongeren in een voorziening', 'Uren CB teldag', 'Uren ECR teldag', 'Uren GD ANG teldag', 
-              'Uren GD ISL teldag', 'Uren GD ISR teldag', 'Uren GD ORT teldag', 'Uren GD PRO teldag', 
-              'Uren GD RK teldag', 'Uren GOK 1', 'Uren GOK 23', 'Uren GZ ANG teldag', 'Uren GZ ISL teldag',
-              'Uren GZ ISR teldag', 'Uren GZ ORT teldag', 'Uren GZ PRO teldag', 'Uren GZ RK teldag',
-              'Uren NCZ teldag', 'Uren OKAN SO', 'Uren school niet in SG', 'Uren topsport',
-              'Uren-leraar CB', 'Uren-leraar GD ANG', 'Uren-leraar GD ISL', 'Uren-leraar GD ISR',
-              'Uren-leraar GD ORT', 'Uren-leraar GD PRO', 'Uren-leraar GD RK', 'Uren-leraar GOK 1',
-              'Uren-leraar GOK 23', 'Uren-leraar NCZ', 'Uren-leraar OKAN SO', 'Uren-leraar afstemming topsport SO',
-              'Uren-leraar bijsprong SO', 'Uren-leraar land- en tuinbouw', 'Uren-leraar n.a.v. toename vluchtelingen',
-              'Uren-leraar school niet in SG', 'Uren-leraar topsport']].sum()
-    ambten = omk[['Adjunct-directeur', 'TA organiek', 'TAC bonusambt', 'TAC organiek',
-                  'Teeltleider', 'Topsportschoolcoördinator']].sum()
-    punten = omk[['ICT-punten', 'Punten ICT', 'Glob Ptn-enveloppe niet in SG']].sum()
-
-    return pd.Series([verhouding*ul, verhouding*ambten, verhouding*punten])
-
-
 df_master = pd.read_excel(f'output/jaren/{sys.argv[1]}/3_vestigingsplaatsen_master.xlsx')
 df_schoolnummers = pd.read_excel(f'output/jaren/{sys.argv[1]}/4_schoolnummers_llngroepen_ul_inschrijvingen.xlsx')
 
@@ -255,16 +177,5 @@ df[['ul_vast_vp_laatste_jaar_aso', 'ul_deg_asis_vp_laatste_jaar_aso']] = df.appl
 df['dir_laatste_jaar_aso'] = df['directeur_vp'] * df['lln_laatste_jaar_aso']/df['aantal_inschrijvingen_vp']
 df['lln_per_dir'] = df['aantal_inschrijvingen_vp']/df['directeur_vp']
 df['ul_per_lln'] = (df['vaste_ul_vp'] + df['ul_vp'])/df['aantal_inschrijvingen_vp']
-
-df['werkingsmiddelen_vp'] = df.apply(lambda row: get_werkingsmiddelen(row, False, False), axis=1)
-df['werkingsmiddelen_vp_laatste'] = df.apply(lambda row: get_werkingsmiddelen(row, True, False), axis=1)
-df['werkingsmiddelen_vp_laatste_aso'] = df.apply(lambda row: get_werkingsmiddelen(row, True, True), axis=1)
-
-df[['extra_ul_aanwendbaar', 'extra_ambten_aanwendbaar', 'extra_punten_aanwendbaar']] = df.apply(
-    lambda row: get_extra_omkadering(row, False, False), axis=1)
-df[['extra_ul_aanwendbaar_laatste', 'extra_ambten_aanwendbaar_laatste', 'extra_punten_aanwendbaar_laatste']] = df.apply(
-    lambda row: get_extra_omkadering(row, True, False), axis=1)
-df[['extra_ul_aanwendbaar_laatste_aso', 'extra_ambten_aanwendbaar_laatste_aso', 'extra_punten_aanwendbaar_laatste_aso']] = df.apply(
-    lambda row: get_extra_omkadering(row, True, True), axis=1)
 
 df.to_excel(f'output/jaren/{schooljaar}/5_master_ul_dir.xlsx', index=False)

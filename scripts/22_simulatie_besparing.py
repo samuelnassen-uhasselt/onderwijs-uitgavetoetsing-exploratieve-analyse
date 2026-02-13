@@ -151,8 +151,11 @@ with pd.ExcelWriter(f'output\\simulatie_alternatief_{sim_type}.xlsx') as writer:
     df_units['punten_dir_diff_euro'] = df_units['punten_dir_diff'] * 752.4
     df_units['diff_euro_totaal'] = df_units['ul_diff_euro'] + df_units['punten_dir_diff_euro']
     df_units['oki'] = df_units.apply(lambda row: get_data.get_oki(row['unit_code_so'], '2024-2025'), axis=1)
-    df_units_xslx = df_units[['unit_code_so', 'aantal_leerlingen', 'ul_vast',
-        'ul_asis', 'ul_alt', 'ul_diff', 'ul_diff_euro',
+    df_units['aantal_instellingsnummers'] = df_units.apply(lambda row: get_data.get_aantal_instellingsnummers(
+        row['unit_code_so']
+    ), axis = 1)
+    df_units_xslx = df_units[['unit_code_so', 'aantal_leerlingen', 'aantal_instellingsnummers',
+        'ul_vast', 'ul_asis', 'ul_alt', 'ul_diff', 'ul_diff_euro',
         'punten_dir_asis', 'punten_dir_alt', 'punten_dir_diff', 'punten_dir_diff_euro',
         'diff_euro_totaal', 'oki'
         ]]
@@ -168,7 +171,12 @@ with pd.ExcelWriter(f'output\\simulatie_alternatief_{sim_type}.xlsx') as writer:
             lambda row: get_data.get_oki('_'.join(row['unit_code_so']), '2024-2025'),
             include_groups=False
         ).values
-        df = df[[groep, 'aantal_leerlingen', 'ul_vast', 'ul_asis', 'ul_alt', 'ul_diff', 'ul_diff_euro',
+        df['aantal_instellingsnummers'] = df_units.groupby(groep).apply(
+            lambda row: get_data.get_aantal_instellingsnummers('_'.join(row['unit_code_so'])),
+            include_groups=False
+        ).values
+        df = df[[groep, 'aantal_leerlingen', 'aantal_instellingsnummers',
+            'ul_vast', 'ul_asis', 'ul_alt', 'ul_diff', 'ul_diff_euro',
             'punten_dir_asis', 'punten_dir_alt', 'punten_dir_diff', 'punten_dir_diff_euro', 
             'diff_euro_totaal', 'oki'
             ]]

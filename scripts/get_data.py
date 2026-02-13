@@ -30,8 +30,11 @@ df_oki_24 = df_oki_24[['Schooljaar code', 'Instellingscode instelling', 'Intern 
                        'Graad SO inclusief modulair code', 'Onderwijsvorm code', 'gemiddelde OKI', 'vp_code', 'jaar', 'Aantal inschrijvingen']]
 
 df_oki = pd.concat([df_oki_17_23, df_oki_24], ignore_index=True)
+df_oki_laatste = df_oki[df_oki['Graad SO inclusief modulair code'] == 3]
 df_oki.set_index(['vp_code', 'jaar'], inplace=True)
 df_oki = df_oki.sort_index()
+df_oki_laatste.set_index(['vp_code', 'jaar'], inplace=True)
+df_oki_laatste = df_oki_laatste.sort_index()
 
 def load_modulair_dfs():
     modulair_dfs = {}
@@ -78,7 +81,7 @@ def get_lln_okigroep(llngroepen, graad, ov, vp, jaar):
                 aantal += inschr
         return aantal
 
-def get_oki(vps, jaar):
+def get_oki(vps, jaar, laatste):
     lln_tot = 0
     score_tot = 0
 
@@ -105,7 +108,10 @@ def get_oki(vps, jaar):
         except:
             continue
         try:
-            oki = df_oki.loc[(int(vp), jaar)]
+            if laatste:
+                oki = df_oki_laatste.loc[(int(vp), jaar)]
+            else:
+                oki = df_oki.loc[(int(vp), jaar)]
         except:
             continue
         for graad, ov, score_oki in zip(
@@ -133,3 +139,8 @@ def get_som_kolommen(vps, jaar, columns, df_c):
         except:
             continue
     return pd.Series(result)
+
+def get_aantal_instellingsnummers(vps):
+    vps = vps.replace('SO_', '')
+    inst = list(set([v[:-2] for v in vps.split('_')]))
+    return len(inst)

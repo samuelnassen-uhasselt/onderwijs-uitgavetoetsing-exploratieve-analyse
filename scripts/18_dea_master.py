@@ -1,9 +1,7 @@
 import pandas as pd
 import numpy as np
 import ast
-import os
 import get_data
-import pickle
 
 df_units = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Units')
 df_bestuur = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Bestuur')
@@ -103,7 +101,15 @@ def get_dataframe_met_info(df, vp_codes_kolom):
     df['gemiddelde_oki'] = df.apply(
         lambda row: get_data.get_oki(
             row[vp_codes_kolom], 
-            row['jaar']
+            row['jaar'],
+            laatste=False
+        ), axis=1)
+    
+    df['gemiddelde_oki_laatste'] = df.apply(
+        lambda row: get_data.get_oki(
+            row[vp_codes_kolom], 
+            row['jaar'],
+            laatste=True
         ), axis=1)
 
     df[['vsv_teller', 'vsv_noemer']] = df.apply(
@@ -135,7 +141,6 @@ df_units = df_units[['unit_code_so', 'jaar', 'schoolbestuur', 'net', 'llng_tobe'
                     'deg_uren-leraar_laatste_jaar_aso_tobe', 'directeurs_laatste_jaar_aso']]
 df_units = get_dataframe_met_info(df_units, 'unit_code_so')
 
-
 def get_vps_bestuur(bestuur, jaar):
     try:
         df_vps = df_master_bestuur.loc[(bestuur, jaar)]['vestigingsplaats'].dropna()
@@ -145,7 +150,6 @@ def get_vps_bestuur(bestuur, jaar):
 
 df_bestuur['vps'] = df_bestuur.apply(lambda row: get_vps_bestuur(row['schoolbestuur'], row['jaar']), axis=1)
 df_bestuur = get_dataframe_met_info(df_bestuur, 'vps')
-
 
 with pd.ExcelWriter('output/18_dea_master.xlsx') as writer:
     df_units.to_excel(writer, sheet_name='Units', index=False)
