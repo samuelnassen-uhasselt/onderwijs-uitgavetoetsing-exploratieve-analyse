@@ -198,7 +198,7 @@ def get_dea_input(vps, jaar):
         dir_asis = master['directeur_vp']
         dir_asis_laatste = master['dir_laatste_jaar']
         dir_tobe = master['directeurs_tobe']
-        dir_tobe_laatste = master['directeurs_laatste_jaar_aso_tobe']
+        dir_tobe_laatste = master['directeurs_laatste_jaar_tobe']
 
         werkingsmiddelen = extra['werkingsmiddelen_vp']
         werkingsmiddelen_laatste = extra['werkingsmiddelen_vp_laatste']
