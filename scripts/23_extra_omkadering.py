@@ -3,7 +3,7 @@ import sys
 
 schooljaar = sys.argv[1]
 
-df_werkingsmiddelen = pd.read_excel(f'Brondata\\Omkadering\\WT_HS311_2017_2024.xlsx')
+df_werkingsmiddelen = pd.read_excel('Brondata\\Omkadering\\WT_HS311_2017_2024.xlsx')
 jaar = int(schooljaar.split('-')[0])
 df_werkingsmiddelen = df_werkingsmiddelen[df_werkingsmiddelen['schooljaar'] == jaar]
 df_werkingsmiddelen.set_index('instellingsnummer', inplace=True)
@@ -68,7 +68,7 @@ def get_extra_omkadering(row, laatste):
     try:
         verhouding = inschr_part/inschr_inst
     except:
-        return pd.Series([0,0,0])
+        return pd.Series([0]*10)
 
     inschr_sg = row['aantal_inschrijvingen_sg']
     try:
@@ -79,7 +79,7 @@ def get_extra_omkadering(row, laatste):
     try:
         omk = df_omkadering.loc[row['schoolnummer']]
     except:
-        return pd.Series([0,0,0])
+        return pd.Series([0]*10)
 
     ul_cols = ['Aanvangsbegeleiding SO', 'Extra uren-leraar vervolgcoach', 'Extra uren-leraar duaal', 
               'Hertelling uren-leraar capaciteit', 'Ondersteuning kerntaak SO', 'TOAH SO', 
@@ -93,24 +93,41 @@ def get_extra_omkadering(row, laatste):
               'Uren-leraar GOK 23', 'Uren-leraar NCZ', 'Uren-leraar OKAN SO', 'Uren-leraar afstemming topsport SO',
               'Uren-leraar bijsprong SO', 'Uren-leraar land- en tuinbouw', 'Uren-leraar n.a.v. toename vluchtelingen',
               'Uren-leraar school niet in SG', 'Uren-leraar topsport']
-
-    ambten_cols = ['Adjunct-directeur', 'TA organiek', 'TAC bonusambt', 'TAC organiek',
-                  'Teeltleider', 'Topsportschoolcoördinator']
     
     punten_cols = ['ICT-punten', 'Punten ICT', 'Glob Ptn-enveloppe niet in SG']
     
     # TODO: FORFAITAIR / MINIMUM
     
-    ul = omk.reindex(ul_cols, fill_value=0).sum()
-    ambten = omk.reindex(ambten_cols, fill_value=0).sum()
-    punten = omk.reindex(punten_cols, fill_value=0).sum()
+    ul = verhouding*omk.reindex(ul_cols, fill_value=0).sum()
 
     try:
-        gpe_punten = df_omkadering_gpe.loc[row['scholengemeenschap'], 'TOEGEKENDE_EENHEDEN']
+        forfait = verhouding*omk['Forfaitair pakket']
+    except:
+        forfait = 0
+    try:
+        min_paket = verhouding*omk['Minimumpakket']
+    except:
+        min_paket = 0
+
+    punten = verhouding*omk.reindex(punten_cols, fill_value=0).sum()
+
+    try:
+        gpe_punten = verhouding_sg*df_omkadering_gpe.loc[row['scholengemeenschap'], 'TOEGEKENDE_EENHEDEN']
     except:
         gpe_punten = 0
 
-    return pd.Series([verhouding*ul, verhouding*ambten, verhouding*punten+verhouding_sg*gpe_punten])
+    ambten_cols = ['Adjunct-directeur', 'TA organiek', 'TAC bonusambt', 'TAC organiek',
+                  'Teeltleider', 'Topsportschoolcoördinator']
+    ambten = {}
+    for a in ambten_cols:
+        try:
+            ambten[a] = verhouding*omk[a]
+        except:
+            ambten[a] = 0
+
+    return pd.Series([ul, forfait, min_paket, punten+gpe_punten,
+                      ambten['Adjunct-directeur'], ambten['TA organiek'], ambten['TAC bonusambt'],
+                      ambten['TAC organiek'], ambten['Teeltleider'], ambten['Topsportschoolcoördinator']])
 
 df = pd.read_excel(f'output/jaren/{schooljaar}/5_master_ul_dir.xlsx')
 
@@ -122,15 +139,22 @@ df = pd.merge(df, df_sg, on='scholengemeenschap', how='left')
 df['werkingsmiddelen_vp'] = df.apply(lambda row: get_werkingsmiddelen(row, False), axis=1)
 df['werkingsmiddelen_vp_laatste'] = df.apply(lambda row: get_werkingsmiddelen(row, True), axis=1)
 
-df[['extra_ul_aanwendbaar', 'extra_ambten_aanwendbaar', 'extra_punten_aanwendbaar']] = df.apply(
+df[['extra_ul_aanwendbaar', 'forfaitair_pakket', 'minimumpakket', 'extra_punten_aanwendbaar', 'Adjunct-directeur', 
+    'TA organiek', 'TAC bonusambt', 'TAC organiek', 'Teeltleider', 'Topsportschoolcoördinator']] = df.apply(
     lambda row: get_extra_omkadering(row, False), axis=1)
-df[['extra_ul_aanwendbaar_laatste', 'extra_ambten_aanwendbaar_laatste', 'extra_punten_aanwendbaar_laatste']] = df.apply(
+df[['extra_ul_aanwendbaar_laatste', 'forfaitair_pakket_laatste', 'minimumpakket_laatste', 
+    'extra_punten_aanwendbaar_laatste', 'Adjunct-directeur_laatste', 'TA organiek_laatste', 'TAC bonusambt_laatste', 
+    'TAC organiek_laatste', 'Teeltleider_laatste', 'Topsportschoolcoördinator_laatste']] = df.apply(
     lambda row: get_extra_omkadering(row, True), axis=1)
 
 df = df[['vestigingsplaats', 'schoolnummer',
         'aantal_inschrijvingen_inst', 'aantal_inschrijvingen_vp', 'lln_laatste_jaar',
         'werkingsmiddelen_vp', 'werkingsmiddelen_vp_laatste',
-        'extra_ul_aanwendbaar', 'extra_ambten_aanwendbaar', 'extra_punten_aanwendbaar',
-        'extra_ul_aanwendbaar_laatste', 'extra_ambten_aanwendbaar_laatste', 'extra_punten_aanwendbaar_laatste']]
+        'extra_ul_aanwendbaar', 'forfaitair_pakket', 'minimumpakket', 'extra_punten_aanwendbaar', 'Adjunct-directeur', 
+        'TA organiek', 'TAC bonusambt', 'TAC organiek', 'Teeltleider', 'Topsportschoolcoördinator',
+        'extra_ul_aanwendbaar_laatste', 'forfaitair_pakket_laatste', 'minimumpakket_laatste', 
+        'extra_punten_aanwendbaar_laatste', 'Adjunct-directeur_laatste', 'TA organiek_laatste', 'TAC bonusambt_laatste', 
+        'TAC organiek_laatste', 'Teeltleider_laatste', 'Topsportschoolcoördinator_laatste'
+    ]]
 
-df.to_excel('test3.xlsx', index=False)
+df.to_excel(f'output/jaren/{schooljaar}/23_extra_omk_aanwendbaar.xlsx', index=False)
