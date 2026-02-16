@@ -71,6 +71,12 @@ def get_finaliteit(llngroepen):
     return f'aso:{aso},tso:{tso},bso:{bso}'
 
 def get_dataframe_met_info(df, vp_codes_kolom):
+    df[['input_asis', 'input_laatste_jaar_asis', 'input_tobe', 'input_laatste_jaar_tobe']] = df.apply(
+        lambda row: get_data.get_dea_input(
+            row[vp_codes_kolom],
+            row['jaar']
+        ), axis=1)
+
     df[['loopbanen_HO', 'rechtstreeks_HO', 'niet_rechtstreeks_HO', 'niet_HO']] = df.apply(
         lambda row: get_data.get_som_kolommen(
             row[vp_codes_kolom], 
@@ -130,15 +136,9 @@ def get_dataframe_met_info(df, vp_codes_kolom):
     
     return df
 
-df_units['uren-leraar_asis'] = df_units['ul_vast'] + df_units['ul_asis']
-df_units['uren-leraar_tobe'] = df_units['ul_vast'] + df_units['ul_tobe']
 df_units['finaliteit'] = df_units['llng_tobe'].apply(get_finaliteit)
-df_units = df_units[['unit_code_so', 'jaar', 'schoolbestuur', 'net', 'llng_tobe', 'finaliteit', 
-                    'aantal_leerlingen', 'uren-leraar_asis', 'directeurs_asis', 'uren-leraar_tobe',
-                    'leerlingen_laatste_jaar', 'vaste_uren-leraar_laatste_jaar', 'deg_uren-leraar_laatste_jaar_asis',
-                    'deg_uren-leraar_laatste_jaar_tobe', 'directeurs_laatste_jaar',
-                    'leerlingen_laatste_jaar_aso', 'vaste_uren-leraar_laatste_jaar_aso', 'deg_uren-leraar_laatste_jaar_aso_asis',
-                    'deg_uren-leraar_laatste_jaar_aso_tobe', 'directeurs_laatste_jaar_aso']]
+df_units = df_units[['unit_code_so', 'jaar', 'schoolbestuur', 'net', 'finaliteit', 
+                    'aantal_leerlingen', 'leerlingen_laatste_jaar']]
 df_units = get_dataframe_met_info(df_units, 'unit_code_so')
 
 def get_vps_bestuur(bestuur, jaar):

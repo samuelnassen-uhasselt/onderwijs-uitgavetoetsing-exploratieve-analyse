@@ -10,6 +10,8 @@ def get_jaar(jaar_code):
 
 df_master_vp = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Master')
 df_master_vp.set_index(['vestigingsplaats', 'jaar'], inplace=True)
+df_extra_vp = pd.read_excel('output/16_jaren_samen.xlsx', sheet_name='Extra Omkadering')
+df_extra_vp.set_index(['vestigingsplaats', 'jaar'], inplace=True)
 
 df_oki_17_23 = pd.read_excel('Brondata\\Studiebewijzen\\20251112-spending review UHasselt.xlsx', sheet_name='OKI')
 df_oki_17_23['vp_code'] = df_oki_17_23['Instellingscode instelling']*100 + df_oki_17_23['Intern volgnummer vestigingsplaats']
@@ -144,3 +146,86 @@ def get_aantal_instellingsnummers(vps):
     vps = vps.replace('SO_', '')
     inst = list(set([v[:-2] for v in vps.split('_')]))
     return len(inst)
+
+
+omk_naar_euro = {
+    'ul': 69073 / 21.23,
+    'dir': 120 * 752.4,
+    'punten': 752.4,
+    'adj_dir': 97010,
+    'ta_org': 0,
+    'tac_bonus': 0,
+    'tac_org': 0,
+    'teelt': 0,
+    'topsport': 0
+}
+
+
+def get_dea_input(vps, jaar):
+    if pd.notna(vps):
+        vps = vps.replace('SO_', '')
+    else:
+        return
+    
+    asis= 0
+    asis_laatste = 0
+    tobe = 0
+    tobe_laatste = 0
+
+    for vp in vps.split('_'):
+        try:
+            master = df_master_vp.loc[(int(vp), jaar)].fillna(0)
+            extra = df_extra_vp.loc[(int(vp), jaar)].fillna(0)
+        except KeyError:
+            continue
+        forfaitair = extra['forfaitair_pakket']
+        min_pakket = extra['minimumpakket']
+
+        if not pd.notna(forfaitair) and forfaitair > 0:
+            ul_asis = forfaitair
+            ul_asis_laatste = extra['forfaitair_pakket_laatste']
+        elif not pd.notna(min_pakket) and min_pakket > 0:
+            ul_asis = min_pakket
+            ul_asis_laatste = extra['minimumpakket_laatste']
+        else:
+            ul_asis = (master['vaste_ul_vp'] + master['ul_vp']) * 0.9657 + extra['extra_ul_aanwendbaar']
+            ul_asis_laatste = ((master['ul_vast_vp_laatste_jaar'] + master['ul_deg_asis_vp_laatste_jaar']) * 0.9657 + 
+                               extra['extra_ul_aanwendbaar_laatste'])
+        ul_tobe = (master['vaste_ul_vp'] + master['ul_tobe']) * 0.9657 + extra['extra_ul_aanwendbaar']
+        ul_tobe_laatste = ((master['ul_vast_vp_laatste_jaar'] + master['ul_laatste_jaar_tobe']) * 0.9657 + 
+                               extra['extra_ul_aanwendbaar_laatste'])
+
+        dir_asis = master['directeur_vp']
+        dir_asis_laatste = master['dir_laatste_jaar']
+        dir_tobe = master['directeurs_tobe']
+        dir_tobe_laatste = master['directeurs_laatste_jaar_aso_tobe']
+
+        werkingsmiddelen = extra['werkingsmiddelen_vp']
+        werkingsmiddelen_laatste = extra['werkingsmiddelen_vp_laatste']
+
+        punten = extra['extra_punten_aanwendbaar']
+        punten_laatste = extra['extra_punten_aanwendbaar_laatste']
+
+        adj_dir, ta_org, tac_bonus, tac_org, teelt, topsport = extra[[
+            'Adjunct-directeur', 'TA organiek', 'TAC bonusambt', 'TAC organiek',
+            'Teeltleider', 'Topsportschoolcoördinator'
+        ]]
+        adj_dir_laatste, ta_org_laatste, tac_bonus_laatste, tac_org_laatste, teelt_laatste, topsport_laatste = extra[[
+            'Adjunct-directeur_laatste', 'TA organiek_laatste', 'TAC bonusambt_laatste', 'TAC organiek_laatste',
+            'Teeltleider_laatste', 'Topsportschoolcoördinator_laatste'
+        ]]
+
+        euro_extra = (werkingsmiddelen + punten*omk_naar_euro['punten'] + adj_dir*omk_naar_euro['adj_dir'] + 
+                      ta_org*omk_naar_euro['ta_org'] + tac_bonus*omk_naar_euro['tac_bonus'] + 
+                      tac_org*omk_naar_euro['tac_org'] + teelt*omk_naar_euro['teelt'] + topsport*omk_naar_euro['topsport'])
+        euro_extra_laatste = (werkingsmiddelen_laatste + punten_laatste*omk_naar_euro['punten'] + 
+                              adj_dir_laatste*omk_naar_euro['adj_dir'] + ta_org_laatste*omk_naar_euro['ta_org'] + 
+                              tac_bonus_laatste*omk_naar_euro['tac_bonus'] + tac_org_laatste*omk_naar_euro['tac_org'] + 
+                              teelt_laatste*omk_naar_euro['teelt'] + topsport_laatste*omk_naar_euro['topsport'])
+        
+        asis += euro_extra + ul_asis*omk_naar_euro['ul'] + dir_asis*omk_naar_euro['dir']
+        asis_laatste += euro_extra_laatste + ul_asis_laatste*omk_naar_euro['ul'] + dir_asis_laatste*omk_naar_euro['dir']
+        tobe += euro_extra + ul_tobe*omk_naar_euro['ul'] + dir_tobe*omk_naar_euro['dir']
+        tobe_laatste += euro_extra_laatste + ul_tobe_laatste*omk_naar_euro['ul'] + dir_tobe_laatste*omk_naar_euro['dir']
+
+    return pd.Series([asis, asis_laatste, tobe, tobe_laatste])
