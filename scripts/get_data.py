@@ -171,6 +171,8 @@ def get_dea_input(vps, jaar):
     asis_laatste = 0
     tobe = 0
     tobe_laatste = 0
+    herverdeeld = 0
+    herverdeeld_laatste = 0
 
     for vp in vps.split('_'):
         try:
@@ -194,11 +196,16 @@ def get_dea_input(vps, jaar):
         ul_tobe = (master['vaste_ul_vp'] + master['ul_tobe']) * 0.9657 + extra['extra_ul_aanwendbaar']
         ul_tobe_laatste = ((master['ul_vast_vp_laatste_jaar'] + master['ul_laatste_jaar_tobe']) * 0.9657 + 
                                extra['extra_ul_aanwendbaar_laatste'])
+        ul_herverdeeld = (master['vaste_ul_vp'] + master['ul_herverdeeld']) * 0.9657 + extra['extra_ul_aanwendbaar']
+        ul_herverdeeld_laatste = ((master['ul_vast_vp_laatste_jaar'] + master['ul_laatste_herverdeeld']) * 0.9657 + 
+                               extra['extra_ul_aanwendbaar_laatste'])
 
         dir_asis = master['directeur_vp']
         dir_asis_laatste = master['dir_laatste_jaar']
         dir_tobe = master['directeurs_tobe']
         dir_tobe_laatste = master['directeurs_laatste_jaar_tobe']
+        punten_dir_herverdeeld = master['punten_dir_herverdeeld']
+        punten_dir_herverdeeld_laatste = master['punten_dir_laatste_herverdeeld']
 
         werkingsmiddelen = extra['werkingsmiddelen_vp']
         werkingsmiddelen_laatste = extra['werkingsmiddelen_vp_laatste']
@@ -228,4 +235,8 @@ def get_dea_input(vps, jaar):
         tobe += euro_extra + ul_tobe*omk_naar_euro['ul'] + dir_tobe*omk_naar_euro['dir']
         tobe_laatste += euro_extra_laatste + ul_tobe_laatste*omk_naar_euro['ul'] + dir_tobe_laatste*omk_naar_euro['dir']
 
-    return pd.Series([asis, asis_laatste, tobe, tobe_laatste])
+        herverdeeld += euro_extra + ul_herverdeeld*omk_naar_euro['ul'] + punten_dir_herverdeeld*omk_naar_euro['punten']
+        herverdeeld_laatste += (euro_extra_laatste + ul_herverdeeld_laatste*omk_naar_euro['ul'] + 
+                                punten_dir_herverdeeld_laatste*omk_naar_euro['punten'])
+
+    return pd.Series([asis, asis_laatste, tobe, tobe_laatste, herverdeeld, herverdeeld_laatste])

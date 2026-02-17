@@ -71,7 +71,9 @@ def get_finaliteit(llngroepen):
     return f'aso:{aso},tso:{tso},bso:{bso}'
 
 def get_dataframe_met_info(df, vp_codes_kolom):
-    df[['input_asis', 'input_laatste_jaar_asis', 'input_tobe', 'input_laatste_jaar_tobe']] = df.apply(
+    df[['input_asis', 'input_laatste_jaar_asis', 
+        'input_tobe', 'input_laatste_jaar_tobe',
+        'input_herverdeeld', 'input_herverdeeld_laatste']] = df.apply(
         lambda row: get_data.get_dea_input(
             row[vp_codes_kolom],
             row['jaar']

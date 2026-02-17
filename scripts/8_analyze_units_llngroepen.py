@@ -4,7 +4,6 @@ import pandas as pd
 import degressieve_ul_llngroepen as dul
 from scipy.spatial.distance import pdist
 import sys
-import math
 
 df_units = pd.read_excel('Brondata\\Units en complexen\\SO_complexen_DLinfo.xlsx')
 df_master = pd.read_excel(f'output/jaren/{sys.argv[1]}/5_master_ul_dir.xlsx')
@@ -86,7 +85,7 @@ def get_llngroepen_for_vestingsplaatsen(vps):
 
     return result
 
-def get_llngroepen_tobe(llngroepen_asis):
+def get_llngroepen_tobe(llngroepen_asis, ul_dict=None):
     result = {}
     for vp, llng in llngroepen_asis.items():
         if pd.notna(llng):
@@ -96,7 +95,10 @@ def get_llngroepen_tobe(llngroepen_asis):
                 result[key]['inschrijvingen'] += value['inschrijvingen']
 
     for key, value in result.items():
-        result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], False, {})
+        if ul_dict is None:
+            result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], False, {})
+        else:
+            result[key]['ul'] = dul.get_degressieve_uren_leraar(key, value['inschrijvingen'], True, ul_dict)
     return result
 
 def get_llngroepen_set(llngroepen):
@@ -256,30 +258,6 @@ def get_dir_laatste_jaar(vps, aso):
             result += 0
     return result
 
-def get_extra_aanwendbaar(vps, laatste, aso):
-    ul, ambten, punten = [0,0,0]
-    vps = vps.replace('SO_', '')
-    for vp in vps.split('_'):
-        try:
-            if not aso:
-                if laatste:
-                    extra = df_master_lookup.loc[int(vp), ['extra_ul_aanwendbaar_laatste', 
-                                                           'extra_ambten_aanwendbaar_laatste', 'extra_punten_aanwendbaar_laatste']]
-                else:
-                    extra = df_master_lookup.loc[int(vp), ['extra_ul_aanwendbaar', 
-                                                           'extra_ambten_aanwendbaar', 'extra_punten_aanwendbaar']]
-            else:
-                extra = df_master_lookup.loc[int(vp), ['extra_ul_aanwendbaar_laatste_aso', 
-                                                       'extra_ambten_aanwendbaar_laatste_aso', 
-                                                       'extra_punten_aanwendbaar_laatste_aso']]
-            ul += extra.iloc[0]
-            ambten += extra.iloc[1]
-            punten += extra.iloc[2]
-        except:
-            continue
-
-    return pd.Series([ul, ambten, punten])
-
 # De tabel is gebouwd op vestigingsplaatsen, dus er staan units meerdere keren in
 df_units = df_units[['unit_code_so', 'unit_code_SO_actief']].drop_duplicates()
 
@@ -293,6 +271,8 @@ df_units['scholengemeenschap'] = df_units['unit_code_so'].apply(get_scholengemee
 # Zoek leerlingengroepe as-is op en bereken to-be
 df_units['llng_asis'] = df_units['unit_code_so'].apply(get_llngroepen_for_vestingsplaatsen)
 df_units['llng_tobe'] = df_units.apply(lambda row: get_llngroepen_tobe(row['llng_asis']), axis=1)
+df_units['llng_herverdeeld'] = df_units.apply(lambda row: get_llngroepen_tobe(row['llng_asis'], 
+                                                    ul_dict=dul.ul_herverdeeld), axis=1)
 df_units['leerlingengroepen'] = df_units['llng_asis'].apply(get_llngroepen_set)
 df_units['aantal_leerlingen'] = df_units['llng_tobe'].apply(get_aantal_leerlingen)
 
@@ -314,6 +294,7 @@ df_units['ul_vast'] = df_units['unit_code_so'].apply(get_vaste_ul)
 df_units['ul_asis'] = df_units['llng_asis'].apply(ul_asis)
 df_units['ul_tobe'] = df_units['llng_tobe'].apply(ul_tobe)
 df_units['ul_diff'] = df_units['ul_tobe'] - df_units['ul_asis']
+df_units['ul_herverdeeld'] = df_units['llng_herverdeeld'].apply(ul_tobe)
 
 df_units['ul_per_lln_asis'] = (df_units['ul_asis'] + df_units['ul_vast'])/df_units['aantal_leerlingen']
 df_units['ul_per_lln_tobe'] = (df_units['ul_tobe'] + df_units['ul_vast'])/df_units['aantal_leerlingen']
@@ -321,12 +302,11 @@ df_units['ul_per_lln_tobe'] = (df_units['ul_tobe'] + df_units['ul_vast'])/df_uni
 # Bereken en vergelijk directeurs
 df_units[['directeurs_vt_asis', 'directeurs_lo_asis']] = df_units['unit_code_so'].apply(get_directeurs)
 df_units['directeurs_asis'] = df_units['directeurs_vt_asis'] + df_units['directeurs_lo_asis']
-df_units['punten_dir_asis'] = df_units['directeurs_asis']*120
 df_units[['directeur_vt_tobe', 'dir_lesopdracht_tobe']] = df_units.apply(lambda row: get_directeur_tobe(row['llng_tobe'],
                                                                            row['aantal_leerlingen']), axis=1)
 df_units['directeur_tobe'] = df_units['directeur_vt_tobe'] + df_units['dir_lesopdracht_tobe']
-df_units['punten_dir_tobe'] = df_units['directeur_tobe']*120
 df_units['directeur_diff'] = df_units['directeur_tobe'] - df_units['directeurs_asis']
+df_units['punten_dir_herverdeeld'] = df_units['aantal_leerlingen']*dul.punten_dir_herverdeeld
 
 df_units['lln_per_dir_asis'] = df_units['aantal_leerlingen']/df_units['directeurs_asis']
 df_units['lln_per_dir_tobe'] = df_units['aantal_leerlingen']/df_units['directeur_tobe']
@@ -337,34 +317,16 @@ df_units[['vaste_uren-leraar_laatste_jaar', 'deg_uren-leraar_laatste_jaar_asis']
     lambda row: get_ul_laatste_jaar_asis(row['unit_code_so'], False), axis=1)
 df_units[['llngr_laatste_jaar_tobe', 'deg_uren-leraar_laatste_jaar_tobe']] = df_units.apply(
     lambda row: get_ul_deg_laatste_jaar_tobe(row['unit_code_so'], row['llng_tobe']), axis=1)
+df_units[['llngr_laatste_jaar_herverdeeld', 'deg_uren-leraar_laatste_jaar_herverdeeld']] = df_units.apply(
+    lambda row: get_ul_deg_laatste_jaar_tobe(row['unit_code_so'], row['llng_herverdeeld']), axis=1)
 df_units['directeurs_laatste_jaar'] = df_units.apply(
     lambda row: get_dir_laatste_jaar(row['unit_code_so'], False), axis=1)
-df_units['leerlingen_laatste_jaar_aso'] = df_units.apply(
-    lambda row: get_lln_laatste_jaar(row['unit_code_so'], True), axis=1)
-df_units[['vaste_uren-leraar_laatste_jaar_aso', 'deg_uren-leraar_laatste_jaar_aso_asis']] = df_units.apply(
-    lambda row: get_ul_laatste_jaar_asis(row['unit_code_so'], True), axis=1)
-df_units['deg_uren-leraar_laatste_jaar_aso_tobe'] = df_units['llngr_laatste_jaar_tobe'].apply(
-    get_ul_deg_laatste_jaar_aso_tobe)
-df_units['directeurs_laatste_jaar_aso'] = df_units.apply(
-    lambda row: get_dir_laatste_jaar(row['unit_code_so'], True), axis=1)
+df_units['punten_dir_laatste_herverdeeld'] = df_units['leerlingen_laatste_jaar']*dul.punten_dir_herverdeeld
 
-df_units[['extra_ul_aanwendbaar', 'extra_ambten_aanwendbaar', 'extra_punten_aanwendbaar']] = df_units.apply(
-    lambda row: get_extra_aanwendbaar(row['unit_code_so'], False, False),
-    axis=1
-)
-df_units[['extra_ul_aanwendbaar_laatste', 'extra_ambten_aanwendbaar_laatste', 'extra_punten_aanwendbaar_laatste']] = df_units.apply(
-    lambda row: get_extra_aanwendbaar(row['unit_code_so'], True, False),
-    axis=1
-)
-df_units[['extra_ul_aanwendbaar_laatste_aso', 'extra_ambten_aanwendbaar_laatste_aso', 'extra_punten_aanwendbaar_laatste_aso']] = df_units.apply(
-    lambda row: get_extra_aanwendbaar(row['unit_code_so'], True, True),
-    axis=1
-)
 
 with pd.ExcelWriter(f'output/jaren/{sys.argv[1]}/8_analyse_units.xlsx') as writer:
     df_units.to_excel(writer, sheet_name='Analyse', index=False)
     df_eindes.to_excel(writer, sheet_name='Eindes', index=False)
-
 
 
 df_units['vestigingsplaats'] = df_units['unit_code_so'].str.replace('SO_', '').str.split('_')
@@ -392,11 +354,44 @@ def get_tobe_vp(vp, master_llngr, laatste):
         pass
     return pd.Series([result, tot])
 
+def get_herverdeeld_vp(vp, master_llngr, laatste):
+    result = {}
+    tot = 0
+    try:
+        unit = df_unit_lookup.loc[str(vp)]
+        if laatste:
+            llngr = unit['llngr_laatste_jaar_herverdeeld']
+        else:
+            llngr = unit['llng_herverdeeld']
+        for groep, inschr in ast.literal_eval(master_llngr).items():
+            tobe = llngr[groep]
+            if groep not in result:
+                result[groep] = {'inschrijvingen': 0, 'ul': 0}
+            result[groep]['inschrijvingen'] += inschr
+            deg_ul_tobe = tobe['ul'] * inschr/tobe['inschrijvingen']
+            result[groep]['ul'] = deg_ul_tobe
+            tot += deg_ul_tobe
+    except:
+        pass
+    return pd.Series([result, tot])
+
 def get_dir_vp_tobe(vp, lln):
     try:
         unit = df_unit_lookup.loc[str(vp)]
         lln_unit = unit['aantal_leerlingen']
         dir_unit = unit['directeur_tobe']
+        if pd.notna(lln_unit) and lln_unit != 0:
+            return lln*dir_unit/lln_unit
+        else:
+            return 0
+    except:
+        return 0
+    
+def get_dir_vp_herverdeeld(vp, lln):
+    try:
+        unit = df_unit_lookup.loc[str(vp)]
+        lln_unit = unit['aantal_leerlingen']
+        dir_unit = unit['punten_dir_herverdeeld']
         if pd.notna(lln_unit) and lln_unit != 0:
             return lln*dir_unit/lln_unit
         else:
@@ -413,14 +408,20 @@ def get_aso_ul_vp(llngr):
 
 df_master[['llngr_tobe', 'ul_tobe']] = df_master.apply(lambda row:
     get_tobe_vp(row['vestigingsplaats'], row['leerlingengroepen_vp'], False), axis=1)
+df_master[['llngr_herverdeeld', 'ul_herverdeeld']] = df_master.apply(lambda row:
+    get_herverdeeld_vp(row['vestigingsplaats'], row['leerlingengroepen_vp'], False), axis=1)
 df_master['directeurs_tobe'] = df_master.apply(lambda row:
     get_dir_vp_tobe(row['vestigingsplaats'], row['aantal_inschrijvingen_vp']), axis=1)
+df_master['punten_dir_herverdeeld'] = df_master.apply(lambda row:
+    get_dir_vp_herverdeeld(row['vestigingsplaats'], row['aantal_inschrijvingen_vp']), axis=1)
+
 df_master[['llngr_laatste_jaar_tobe', 'ul_laatste_jaar_tobe']] = df_master.apply(lambda row:
     get_tobe_vp(row['vestigingsplaats'], row['llngroepen_laatste_jaar'], True), axis=1)
+df_master[['llngr_laatste_herverdeeld', 'ul_laatste_herverdeeld']] = df_master.apply(lambda row:
+    get_herverdeeld_vp(row['vestigingsplaats'], row['llngroepen_laatste_jaar'], True), axis=1)
 df_master['directeurs_laatste_jaar_tobe'] = df_master.apply(lambda row:
     get_dir_vp_tobe(row['vestigingsplaats'], row['lln_laatste_jaar']), axis=1)
-df_master['ul_laatste_jaar_aso_tobe'] = df_master['llngr_laatste_jaar_tobe'].apply(get_aso_ul_vp)
-df_master['directeurs_laatste_jaar_aso_tobe'] = df_master.apply(lambda row:
-    get_dir_vp_tobe(row['vestigingsplaats'], row['lln_laatste_jaar_aso']), axis=1)
+df_master['punten_dir_laatste_herverdeeld'] = df_master.apply(lambda row:
+    get_dir_vp_herverdeeld(row['vestigingsplaats'], row['lln_laatste_jaar']), axis=1)
 
 df_master.to_excel(f'output/jaren/{sys.argv[1]}/5_master_ul_dir.xlsx', index=False)
