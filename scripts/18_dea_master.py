@@ -73,7 +73,8 @@ def get_finaliteit(llngroepen):
 def get_dataframe_met_info(df, vp_codes_kolom):
     df[['input_asis', 'input_laatste_jaar_asis', 
         'input_tobe', 'input_laatste_jaar_tobe',
-        'input_herverdeeld', 'input_herverdeeld_laatste']] = df.apply(
+        'input_herverdeeld', 'input_herverdeeld_laatste',
+        'adj_dir']] = df.apply(
         lambda row: get_data.get_dea_input(
             row[vp_codes_kolom],
             row['jaar']

@@ -173,6 +173,7 @@ def get_dea_input(vps, jaar):
     tobe_laatste = 0
     herverdeeld = 0
     herverdeeld_laatste = 0
+    adjunct_dir = 0
 
     for vp in vps.split('_'):
         try:
@@ -238,5 +239,7 @@ def get_dea_input(vps, jaar):
         herverdeeld += euro_extra + ul_herverdeeld*omk_naar_euro['ul'] + punten_dir_herverdeeld*omk_naar_euro['punten']
         herverdeeld_laatste += (euro_extra_laatste + ul_herverdeeld_laatste*omk_naar_euro['ul'] + 
                                 punten_dir_herverdeeld_laatste*omk_naar_euro['punten'])
+        
+        adjunct_dir += adj_dir
 
-    return pd.Series([asis, asis_laatste, tobe, tobe_laatste, herverdeeld, herverdeeld_laatste])
+    return pd.Series([asis, asis_laatste, tobe, tobe_laatste, herverdeeld, herverdeeld_laatste, adjunct_dir])
