@@ -152,7 +152,7 @@ omk_naar_euro = {
     'ul': 69073 / 21.23,
     'dir': 120 * 752.4,
     'punten': 752.4,
-    'adj_dir': 97010,
+    'adj_dir': 120 * 752.4,
     'ta_org': 0,
     'tac_bonus': 0,
     'tac_org': 0,
