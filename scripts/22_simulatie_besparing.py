@@ -146,11 +146,11 @@ with pd.ExcelWriter(f'output\\simulatie_alternatief_{sim_type}.xlsx') as writer:
     df_uitleg.to_excel(writer, sheet_name='uitleg variabelen', index=False)
 
     df_units['ul_diff'] = df_units['ul_alt'] - df_units['ul_asis']
-    df_units['ul_diff_euro'] = df_units['ul_diff']*0.9657*69073/21.23
+    df_units['ul_diff_euro'] = df_units['ul_diff']*0.9657*69073/21.23 + df_units['ul_diff']*0.9657*0.324143375*752.4
     df_units['punten_dir_diff'] = df_units['punten_dir_alt'] - df_units['punten_dir_asis']
     df_units['punten_dir_diff_euro'] = df_units['punten_dir_diff'] * 752.4
     df_units['diff_euro_totaal'] = df_units['ul_diff_euro'] + df_units['punten_dir_diff_euro']
-    df_units['oki'] = df_units.apply(lambda row: get_data.get_oki(row['unit_code_so'], '2024-2025'), axis=1)
+    df_units['oki'] = df_units.apply(lambda row: get_data.get_oki(row['unit_code_so'], '2024-2025', laatste=False), axis=1)
     df_units['aantal_instellingsnummers'] = df_units.apply(lambda row: get_data.get_aantal_instellingsnummers(
         row['unit_code_so']
     ), axis = 1)
@@ -163,12 +163,12 @@ with pd.ExcelWriter(f'output\\simulatie_alternatief_{sim_type}.xlsx') as writer:
     for groep in group_cols:
         df = df_units.groupby(groep)[agg_cols].sum().reset_index()
         df['ul_diff'] = df['ul_alt'] - df['ul_asis']
-        df['ul_diff_euro'] = df['ul_diff']*0.9657*69073/21.23
+        df['ul_diff_euro'] = df['ul_diff']*0.9657*69073/21.23 + df['ul_diff']*0.9657*0.324143375*752.4
         df['punten_dir_diff'] = df['punten_dir_alt'] - df['punten_dir_asis']
         df['punten_dir_diff_euro'] = df['punten_dir_diff'] * 752.4
         df['diff_euro_totaal'] = df['ul_diff_euro'] + df['punten_dir_diff_euro']
         df['oki'] = df_units.groupby(groep).apply(
-            lambda row: get_data.get_oki('_'.join(row['unit_code_so']), '2024-2025'),
+            lambda row: get_data.get_oki('_'.join(row['unit_code_so']), '2024-2025', laatste=False),
             include_groups=False
         ).values
         df['aantal_instellingsnummers'] = df_units.groupby(groep).apply(

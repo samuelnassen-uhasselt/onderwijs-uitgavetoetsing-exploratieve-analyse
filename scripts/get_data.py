@@ -147,7 +147,6 @@ def get_aantal_instellingsnummers(vps):
     inst = list(set([v[:-2] for v in vps.split('_')]))
     return len(inst)
 
-
 omk_naar_euro = {
     'ul': 69073 / 21.23,
     'dir': 120 * 752.4,
@@ -159,7 +158,6 @@ omk_naar_euro = {
     'teelt': 0,
     'topsport': 0
 }
-
 
 def get_dea_input(vps, jaar):
     if pd.notna(vps):
@@ -181,25 +179,30 @@ def get_dea_input(vps, jaar):
             extra = df_extra_vp.loc[(int(vp), jaar)].fillna(0)
         except KeyError:
             continue
-        forfaitair = extra['forfaitair_pakket']
-        min_pakket = extra['minimumpakket']
+        # forfaitair = extra['forfaitair_pakket']
+        # min_pakket = extra['minimumpakket']
 
-        if not pd.notna(forfaitair) and forfaitair > 0:
-            ul_asis = forfaitair
-            ul_asis_laatste = extra['forfaitair_pakket_laatste']
-        elif not pd.notna(min_pakket) and min_pakket > 0:
-            ul_asis = min_pakket
-            ul_asis_laatste = extra['minimumpakket_laatste']
-        else:
-            ul_asis = (master['vaste_ul_vp'] + master['ul_vp']) * 0.9657 + extra['extra_ul_aanwendbaar']
-            ul_asis_laatste = ((master['ul_vast_vp_laatste_jaar'] + master['ul_deg_asis_vp_laatste_jaar']) * 0.9657 + 
-                               extra['extra_ul_aanwendbaar_laatste'])
-        ul_tobe = (master['vaste_ul_vp'] + master['ul_tobe']) * 0.9657 + extra['extra_ul_aanwendbaar']
-        ul_tobe_laatste = ((master['ul_vast_vp_laatste_jaar'] + master['ul_laatste_jaar_tobe']) * 0.9657 + 
-                               extra['extra_ul_aanwendbaar_laatste'])
-        ul_herverdeeld = (master['vaste_ul_vp'] + master['ul_herverdeeld']) * 0.9657 + extra['extra_ul_aanwendbaar']
-        ul_herverdeeld_laatste = ((master['ul_vast_vp_laatste_jaar'] + master['ul_laatste_herverdeeld']) * 0.9657 + 
-                               extra['extra_ul_aanwendbaar_laatste'])
+        # if not pd.notna(forfaitair) and forfaitair > 0:
+        #     ul_asis = forfaitair
+        #     ul_asis_laatste = extra['forfaitair_pakket_laatste']
+        # elif not pd.notna(min_pakket) and min_pakket > 0:
+        #     ul_asis = min_pakket
+        #     ul_asis_laatste = extra['minimumpakket_laatste']
+        # else:
+        ul_gewoon_asis = (master['vaste_ul_vp'] + master['ul_vp']) * 0.9657
+        ul_asis = ul_gewoon_asis + extra['extra_ul_aanwendbaar']
+        ul_gewoon_asis_laatste = (master['ul_vast_vp_laatste_jaar'] + master['ul_deg_asis_vp_laatste_jaar']) * 0.9657
+        ul_asis_laatste =  ul_gewoon_asis_laatste + extra['extra_ul_aanwendbaar_laatste']
+        
+        ul_gewoon_tobe = (master['vaste_ul_vp'] + master['ul_tobe']) * 0.9657
+        ul_tobe = ul_gewoon_tobe + extra['extra_ul_aanwendbaar']
+        ul_gewoon_tobe_laatste = (master['ul_vast_vp_laatste_jaar'] + master['ul_laatste_jaar_tobe']) * 0.9657
+        ul_tobe_laatste =  ul_gewoon_tobe_laatste + extra['extra_ul_aanwendbaar_laatste']
+
+        ul_gewoon_herverdeeld = (master['vaste_ul_vp'] + master['ul_herverdeeld']) * 0.9657
+        ul_herverdeeld = ul_gewoon_herverdeeld + extra['extra_ul_aanwendbaar']
+        ul_gewoon_herverdeeld_laatste = (master['ul_vast_vp_laatste_jaar'] + master['ul_laatste_herverdeeld']) * 0.9657
+        ul_herverdeeld_laatste = ul_gewoon_herverdeeld_laatste + extra['extra_ul_aanwendbaar_laatste']
 
         dir_asis = master['directeur_vp']
         dir_asis_laatste = master['dir_laatste_jaar']
@@ -211,8 +214,13 @@ def get_dea_input(vps, jaar):
         werkingsmiddelen = extra['werkingsmiddelen_vp']
         werkingsmiddelen_laatste = extra['werkingsmiddelen_vp_laatste']
 
-        punten = extra['extra_punten_aanwendbaar']
-        punten_laatste = extra['extra_punten_aanwendbaar_laatste']
+        punten_asis = extra['extra_punten_aanwendbaar']
+        punten_asis_laatste = extra['extra_punten_aanwendbaar_laatste']
+        punten_tobe = punten_asis - (ul_gewoon_asis - ul_gewoon_tobe) * 0.324143375
+        punten_tobe_laatste = punten_asis_laatste - (ul_gewoon_asis_laatste - ul_gewoon_tobe_laatste) * 0.324143375
+        punten_herverdeeld = punten_asis - (ul_gewoon_asis - ul_gewoon_herverdeeld) * 0.324143375
+        punten_herverdeeld_laatste = punten_asis_laatste - (ul_gewoon_asis_laatste - 
+                                                            ul_gewoon_herverdeeld_laatste) * 0.324143375
 
         adj_dir, ta_org, tac_bonus, tac_org, teelt, topsport = extra[[
             'Adjunct-directeur', 'TA organiek', 'TAC bonusambt', 'TAC organiek',
@@ -223,22 +231,29 @@ def get_dea_input(vps, jaar):
             'Teeltleider_laatste', 'Topsportschoolcoördinator_laatste'
         ]]
 
-        euro_extra = (werkingsmiddelen + punten*omk_naar_euro['punten'] + adj_dir*omk_naar_euro['adj_dir'] + 
+        euro_extra = (werkingsmiddelen + adj_dir*omk_naar_euro['adj_dir'] + 
                       ta_org*omk_naar_euro['ta_org'] + tac_bonus*omk_naar_euro['tac_bonus'] + 
                       tac_org*omk_naar_euro['tac_org'] + teelt*omk_naar_euro['teelt'] + topsport*omk_naar_euro['topsport'])
-        euro_extra_laatste = (werkingsmiddelen_laatste + punten_laatste*omk_naar_euro['punten'] + 
+        euro_extra_laatste = (werkingsmiddelen_laatste + 
                               adj_dir_laatste*omk_naar_euro['adj_dir'] + ta_org_laatste*omk_naar_euro['ta_org'] + 
                               tac_bonus_laatste*omk_naar_euro['tac_bonus'] + tac_org_laatste*omk_naar_euro['tac_org'] + 
                               teelt_laatste*omk_naar_euro['teelt'] + topsport_laatste*omk_naar_euro['topsport'])
         
-        asis += euro_extra + ul_asis*omk_naar_euro['ul'] + dir_asis*omk_naar_euro['dir']
-        asis_laatste += euro_extra_laatste + ul_asis_laatste*omk_naar_euro['ul'] + dir_asis_laatste*omk_naar_euro['dir']
-        tobe += euro_extra + ul_tobe*omk_naar_euro['ul'] + dir_tobe*omk_naar_euro['dir']
-        tobe_laatste += euro_extra_laatste + ul_tobe_laatste*omk_naar_euro['ul'] + dir_tobe_laatste*omk_naar_euro['dir']
+        asis += (euro_extra + ul_asis*omk_naar_euro['ul'] + dir_asis*omk_naar_euro['dir'] + 
+                 punten_asis*omk_naar_euro['punten'])
+        asis_laatste += (euro_extra_laatste + ul_asis_laatste*omk_naar_euro['ul'] + dir_asis_laatste*omk_naar_euro['dir'] + 
+                 punten_asis_laatste*omk_naar_euro['punten'])
+        
+        tobe += (euro_extra + ul_tobe*omk_naar_euro['ul'] + dir_tobe*omk_naar_euro['dir'] + 
+                 punten_tobe*omk_naar_euro['punten'])
+        tobe_laatste += (euro_extra_laatste + ul_tobe_laatste*omk_naar_euro['ul'] + dir_tobe_laatste*omk_naar_euro['dir'] + 
+                 punten_tobe_laatste*omk_naar_euro['punten'])
 
-        herverdeeld += euro_extra + ul_herverdeeld*omk_naar_euro['ul'] + punten_dir_herverdeeld*omk_naar_euro['punten']
+        herverdeeld += (euro_extra + ul_herverdeeld*omk_naar_euro['ul'] + punten_dir_herverdeeld*omk_naar_euro['punten'] + 
+                 punten_herverdeeld*omk_naar_euro['punten'])
         herverdeeld_laatste += (euro_extra_laatste + ul_herverdeeld_laatste*omk_naar_euro['ul'] + 
-                                punten_dir_herverdeeld_laatste*omk_naar_euro['punten'])
+                                punten_dir_herverdeeld_laatste*omk_naar_euro['punten'] + 
+                                punten_herverdeeld_laatste*omk_naar_euro['punten'])
         
         adjunct_dir += adj_dir
 
