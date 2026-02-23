@@ -167,6 +167,7 @@ df['punten_dir_vp'] = df['directeur_vp']*120
 df['ul_llngroepen'] = df.apply(lambda row: get_uren_leraar(
     row['leerlingengroepen_vp'], row['leerlingengroepen_inst']), axis=1)
 df['ul_vp'] = df['ul_llngroepen'].apply(ul_vp)
+df['punten_ul_asis'] = (df['vaste_ul_vp'] + df['ul_vp'])*0.9657*0.324143375
 df['lln_laatste_jaar'] = df.apply(lambda row: lln_laatste_jaar(row['vestigingsplaats'], False), axis=1)
 df[['llngroepen_laatste_jaar', 'ul_vast_vp_laatste_jaar', 'ul_deg_asis_vp_laatste_jaar']] = df.apply(
     lambda row: ul_laatste_jaar(row['vestigingsplaats'], row['ul_llngroepen'], False), axis=1)

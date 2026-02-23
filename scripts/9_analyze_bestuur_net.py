@@ -21,6 +21,8 @@ df_bestuur_units = df_units_met_inschrijvingen.groupby('schoolbestuur').agg(
     ul_vast = ('ul_vast', 'sum'),
     ul_asis = ('ul_asis', 'sum'),
     ul_tobe = ('ul_tobe', 'sum'),
+    punten_ul_asis = ('punten_ul_asis', 'sum'),
+    punten_ul_tobe = ('punten_ul_tobe', 'sum'),
     directeur_asis = ('directeurs_asis', 'sum'),
     directeur_tobe = ('directeur_tobe', 'sum'),
     leerlingen_laatste_jaar = ('leerlingen_laatste_jaar', 'sum'),
@@ -28,22 +30,17 @@ df_bestuur_units = df_units_met_inschrijvingen.groupby('schoolbestuur').agg(
     deg_ul_laatste_jaar_asis = ('deg_uren-leraar_laatste_jaar_asis', 'sum'),
     deg_ul_laatste_jaar_tobe = ('deg_uren-leraar_laatste_jaar_tobe', 'sum'),
     dir_laatste_jaar_asis = ('directeurs_laatste_jaar', 'sum'),
-    leerlingen_laatste_jaar_aso = ('leerlingen_laatste_jaar_aso', 'sum'),
-    vaste_ul_laatste_jaar_aso = ('vaste_uren-leraar_laatste_jaar_aso', 'sum'),
-    deg_ul_laatste_jaar_aso_asis = ('deg_uren-leraar_laatste_jaar_aso_asis', 'sum'),
-    deg_ul_laatste_jaar_aso_tobe = ('deg_uren-leraar_laatste_jaar_aso_tobe', 'sum'),
-    dir_laatste_jaar_aso_asis = ('directeurs_laatste_jaar_aso', 'sum'),
 ).reset_index()
 
 # Voeg as-is en to-be samen en bereken verschillen
 df_bestuur = pd.merge(df_bestuur_master, df_bestuur_units, how='outer', on='schoolbestuur')
 df_bestuur['ul_diff'] = df_bestuur['ul_tobe'] - df_bestuur['ul_asis']
+df_bestuur['punten_ul_diff'] = df_bestuur['punten_ul_tobe'] - df_bestuur['punten_ul_asis']
 df_bestuur['directeur_diff'] = df_bestuur['directeur_tobe'] - df_bestuur['directeur_asis']
-df_bestuur = df_bestuur[['schoolbestuur', 'instellingen', 'units', 'aantal_leerlingen', 'ul_vast', 'ul_asis', 'ul_tobe', 'ul_diff', 
+df_bestuur = df_bestuur[['schoolbestuur', 'instellingen', 'units', 'aantal_leerlingen', 'ul_vast', 'ul_asis', 
+                         'ul_tobe', 'ul_diff', 'punten_ul_asis', 'punten_ul_tobe', 'punten_ul_diff',
                          'directeur_asis', 'directeur_tobe', 'directeur_diff', 'leerlingen_laatste_jaar', 'vaste_ul_laatste_jaar', 
-                         'deg_ul_laatste_jaar_asis', 'deg_ul_laatste_jaar_tobe', 'dir_laatste_jaar_asis',
-                         'leerlingen_laatste_jaar_aso', 'vaste_ul_laatste_jaar_aso', 'deg_ul_laatste_jaar_aso_asis',
-                         'deg_ul_laatste_jaar_aso_tobe', 'dir_laatste_jaar_aso_asis',]]
+                         'deg_ul_laatste_jaar_asis', 'deg_ul_laatste_jaar_tobe', 'dir_laatste_jaar_asis']]
 
 df_bestuur['ul_per_lln_asis'] = (df_bestuur['ul_asis'] + df_bestuur['ul_vast'])/df_bestuur['aantal_leerlingen']
 df_bestuur['ul_per_lln_tobe'] = (df_bestuur['ul_tobe'] + df_bestuur['ul_vast'])/df_bestuur['aantal_leerlingen']
@@ -68,6 +65,8 @@ df_net_units = df_units_met_inschrijvingen.groupby('net').agg(
     ul_vast = ('ul_vast', 'sum'),
     ul_asis = ('ul_asis', 'sum'),
     ul_tobe = ('ul_tobe', 'sum'),
+    punten_ul_asis = ('punten_ul_asis', 'sum'),
+    punten_ul_tobe = ('punten_ul_tobe', 'sum'),
     directeur_asis = ('directeurs_asis', 'sum'),
     directeur_tobe = ('directeur_tobe', 'sum'),
     punten_directeur_asis = ('punten_dir_asis', 'sum'),
@@ -77,9 +76,11 @@ df_net_units = df_units_met_inschrijvingen.groupby('net').agg(
 # Voeg as-is en to-be samen en bereken verschillen
 df_net = pd.merge(df_net_master, df_net_units, how='outer', on='net')
 df_net['ul_diff'] = df_net['ul_tobe'] - df_net['ul_asis']
+df_net['punten_ul_diff'] = df_net['punten_ul_tobe'] - df_net['punten_ul_asis']
 df_net['directeur_diff'] = df_net['directeur_tobe'] - df_net['directeur_asis']
 df_net['dir_punten_diff'] = df_net['punten_directeur_tobe'] - df_net['punten_directeur_asis']
 df_net = df_net[['net', 'instellingen', 'units', 'aantal_leerlingen', 'ul_vast', 'ul_asis', 'ul_tobe', 'ul_diff',
+                 'punten_ul_asis', 'punten_ul_tobe', 'punten_ul_diff',
                  'directeur_asis', 'directeur_tobe', 'directeur_diff', 'punten_directeur_asis', 'punten_directeur_tobe',
                  'dir_punten_diff']]
 

@@ -294,7 +294,7 @@ df_units['ul_vast'] = df_units['unit_code_so'].apply(get_vaste_ul)
 df_units['ul_asis'] = df_units['llng_asis'].apply(ul_asis)
 df_units['ul_tobe'] = df_units['llng_tobe'].apply(ul_tobe)
 df_units['ul_diff'] = df_units['ul_tobe'] - df_units['ul_asis']
-df_units['ul_diff_euro'] = df_units['ul_diff']*0.9657*69073/21.23 + df_units['ul_diff']*0.9657*0.324143375*752.4
+df_units['ul_diff_euro'] = df_units['ul_diff']*0.9657*69073/21.23
 df_units['ul_herverdeeld'] = df_units['llng_herverdeeld'].apply(ul_tobe)
 
 df_units['ul_per_lln_asis'] = (df_units['ul_asis'] + df_units['ul_vast'])/df_units['aantal_leerlingen']
@@ -315,6 +315,12 @@ df_units['punten_dir_herverdeeld'] = df_units['aantal_leerlingen']*dul.punten_di
 
 df_units['lln_per_dir_asis'] = df_units['aantal_leerlingen']/df_units['directeurs_asis']
 df_units['lln_per_dir_tobe'] = df_units['aantal_leerlingen']/df_units['directeur_tobe']
+
+df_units['punten_ul_asis'] = (df_units['ul_vast'] + df_units['ul_asis'])*0.9657*0.324143375
+df_units['punten_ul_tobe'] = (df_units['ul_vast'] + df_units['ul_tobe'])*0.9657*0.324143375
+df_units['punten_ul_diff'] = df_units['punten_ul_asis'] - df_units['punten_ul_tobe']
+df_units['punten_ul_diff_euro'] = df_units['punten_ul_diff']*752.4
+df_units['punten_ul_herverdeeld'] = (df_units['ul_vast'] + df_units['ul_herverdeeld'])*0.9657*0.324143375
 
 df_units['leerlingen_laatste_jaar'] = df_units.apply(
     lambda row: get_lln_laatste_jaar(row['unit_code_so'], False), axis=1)
@@ -419,6 +425,9 @@ df_master['directeurs_tobe'] = df_master.apply(lambda row:
     get_dir_vp_tobe(row['vestigingsplaats'], row['aantal_inschrijvingen_vp']), axis=1)
 df_master['punten_dir_herverdeeld'] = df_master.apply(lambda row:
     get_dir_vp_herverdeeld(row['vestigingsplaats'], row['aantal_inschrijvingen_vp']), axis=1)
+
+df_master['punten_ul_tobe'] = (df_master['vaste_ul_vp'] + df_master['ul_tobe'])*0.9657*0.324143375
+df_master['punten_ul_herverdeeld'] = (df_master['vaste_ul_vp'] + df_master['ul_herverdeeld'])*0.9657*0.324143375
 
 df_master[['llngr_laatste_jaar_tobe', 'ul_laatste_jaar_tobe']] = df_master.apply(lambda row:
     get_tobe_vp(row['vestigingsplaats'], row['llngroepen_laatste_jaar'], True), axis=1)
