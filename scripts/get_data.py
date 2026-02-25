@@ -150,7 +150,8 @@ def get_aantal_instellingsnummers(vps):
 omk_naar_euro = {
     'ul': 69073 / 21.23,
     'dir': 120 * 752.4,
-    'punten': 752.4,
+    'punten_dir': 752.4,
+    'punten': 0.9657 * 752.4,
     'adj_dir': 120 * 752.4,
     'ta_org': 0,
     'tac_bonus': 0,
@@ -249,10 +250,10 @@ def get_dea_input(vps, jaar):
         tobe_laatste += (euro_extra_laatste + ul_tobe_laatste*omk_naar_euro['ul'] + dir_tobe_laatste*omk_naar_euro['dir'] + 
                  punten_tobe_laatste*omk_naar_euro['punten'])
 
-        herverdeeld += (euro_extra + ul_herverdeeld*omk_naar_euro['ul'] + punten_dir_herverdeeld*omk_naar_euro['punten'] + 
+        herverdeeld += (euro_extra + ul_herverdeeld*omk_naar_euro['ul'] + punten_dir_herverdeeld*omk_naar_euro['punten_dir'] + 
                  punten_herverdeeld*omk_naar_euro['punten'])
         herverdeeld_laatste += (euro_extra_laatste + ul_herverdeeld_laatste*omk_naar_euro['ul'] + 
-                                punten_dir_herverdeeld_laatste*omk_naar_euro['punten'] + 
+                                punten_dir_herverdeeld_laatste*omk_naar_euro['punten_dir'] + 
                                 punten_herverdeeld_laatste*omk_naar_euro['punten'])
         
         adjunct_dir += adj_dir

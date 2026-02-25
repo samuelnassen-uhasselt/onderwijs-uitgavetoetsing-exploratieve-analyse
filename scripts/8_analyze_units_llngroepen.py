@@ -307,7 +307,7 @@ df_units[['directeur_vt_tobe', 'dir_lesopdracht_tobe']] = df_units.apply(lambda 
                                                                            row['aantal_leerlingen']), axis=1)
 df_units['directeur_tobe'] = df_units['directeur_vt_tobe'] + df_units['dir_lesopdracht_tobe']
 df_units['directeur_diff'] = df_units['directeur_tobe'] - df_units['directeurs_asis']
-df_units['directeur_diff_euro'] = df_units['directeur_diff'] * 120 * 752.4
+df_units['directeur_diff_euro'] = df_units['directeur_diff']*120*752.4
 
 df_units['punten_dir_asis'] = df_units['directeurs_asis']*120
 df_units['punten_dir_tobe'] = df_units['directeur_tobe']*120
@@ -319,7 +319,7 @@ df_units['lln_per_dir_tobe'] = df_units['aantal_leerlingen']/df_units['directeur
 df_units['punten_ul_asis'] = (df_units['ul_vast'] + df_units['ul_asis'])*0.9657*0.324143375
 df_units['punten_ul_tobe'] = (df_units['ul_vast'] + df_units['ul_tobe'])*0.9657*0.324143375
 df_units['punten_ul_diff'] = df_units['punten_ul_asis'] - df_units['punten_ul_tobe']
-df_units['punten_ul_diff_euro'] = df_units['punten_ul_diff']*752.4
+df_units['punten_ul_diff_euro'] = df_units['punten_ul_diff']*0.9657*752.4
 df_units['punten_ul_herverdeeld'] = (df_units['ul_vast'] + df_units['ul_herverdeeld'])*0.9657*0.324143375
 
 df_units['leerlingen_laatste_jaar'] = df_units.apply(
