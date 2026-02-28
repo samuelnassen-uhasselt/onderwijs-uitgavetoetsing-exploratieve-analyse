@@ -5,6 +5,7 @@ Om de analyse opnieuw te maken, run het script 'run_scripts.py'.
 Hiervoor is de Brondata nodig. Voeg de volgende mappen toe in de brondata:
 - Doorstroom
 - Inschrijvingen
+- OKI
 - Omkadering
 - Studiebewijzen
 - Units en complexen

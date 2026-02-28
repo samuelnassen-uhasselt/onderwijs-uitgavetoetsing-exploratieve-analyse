@@ -209,14 +209,22 @@ def plot_in_out_analysis_interactive(X, Y, efficiency,
     # Get hull vertices
     hull_vertices = points[hull.vertices]
 
+    print(hull_vertices)
+
+    print([X.min(), 0], [X.max(), Y.max()])
+
     # Remove bottom part of hull
     start = 0
     while not np.array_equal(hull_vertices[start],[X.min(), 0]):
         start += 1
-    start += 1
+    if start == len(hull_vertices) - 1:
+        start = 0
+    else:
+        start += 1
 
     while not np.array_equal(hull_vertices[start],[X.max(), Y.max()]):
         hull_vertices = np.delete(hull_vertices, start, axis=0)
+        print(hull_vertices)
 
     while not np.array_equal(hull_vertices[0],[X.max(), Y.max()]):
         hull_vertices = np.roll(hull_vertices, 1, axis=0)
