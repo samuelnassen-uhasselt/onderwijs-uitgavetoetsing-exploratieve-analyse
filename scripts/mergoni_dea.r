@@ -14,7 +14,7 @@ col_name = args[5]
 df <- read_xlsx(dea_file)
 
 dea_df <- df %>%
-  select(-unit_code_so, -jaar_afgestudeerd_so, -schoolbestuur, -net, -leerlingengroepen)
+  select(-unit_code_so, -jaar_afgestudeerd_so, -schoolbestuur, -net)
 
 dea_input <- dea_df %>%
   select(all_of(input))
