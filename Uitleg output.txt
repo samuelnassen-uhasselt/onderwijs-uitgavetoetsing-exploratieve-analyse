@@ -1,0 +1,137 @@
+BESTANDEN PER JAAR:
+
+0_vestigingsplaatsen_volledig_nummer.xlsx:
+
+De data van de vestigingsplaatsen met het nummer van de vestigingsplaatsen omgezet naar instellingsnummer en volgnummer, zoals dit gedaan is voor de units.
+
+1_inschrijvingen_vestigingen.xlsx:
+
+- Leerlingengroepen met VUL:
+Voor elke vestigingsplaats de leerlingengroepen en de vaste component uren-leraar.
+- Studierichtingen met VUL:
+Inschrijvingen per studierichting en vestigingsplaats, met daarbij vaste uren-leraar.
+- Laatste Jaar:
+Inschrijvingen en vaste uren-leraar voor de vestigingsplaatsen, maar enkel voor studenten in het laatste jaar.
+
+2_besturen.xlsx:
+
+Bestuursnummers leginkt met de naam van het bestuur.
+
+3_vestigingsplaatsen_master.xlsx:
+
+Samenvoeging van 0 en 1 - Leerlingengroepen met VUL.
+
+4_schoolnummers_llngroepen_ul_inschrijvingen.xlsx:
+
+De data van 1 - Leerlingengroepen met VUL samengevoegd op het niveau van de instellingen.
+Hierbij worden aanvullend de degressieve uren-leraar berekend (kolom 'leerlingengroepen').
+
+5_master_ul_dir.xlsx:
+
+Dit is het master-bestand op niveau vestigingsplaats dat gebruikt wordt voor een groot deel van de volgende berekeningen.
+Hierin gebeurt het volgende:
+- Data samengevoegd van de eerdere bestanden en missende waardes ingevuld.
+- Degressieve uren-leraar pro-rata aan vestigingsplaatsten toegekend, gebruikmakend van het aantal leerlingen.
+- De punten ten gevolge van de uren-leraar worden berekend.
+- Directeurs toegevoegd en pro-rata toegekend. Vervolgens omgezet in punten voor de Globale Puntenenveloppe.
+- Dezelfde berekeningen voor leerlingen van het laatste jaar.
+- In het latere script (8_analyze_units_llngroepen.py) worden de TO-BE berekeningen hieraan toegevoegd.
+
+6_zelfde_adres.xlsx:
+
+- Clusters:
+Clusters aan vestigingsplaatsen die op hetzelfde adres zitten, gebruikmakend van de andere sheet.
+- Scholen Zelfde Adres:
+Alle paren van vestigingsplaatsen die een adres delen.
+
+7_analyse_clusters_zelfde_adres.xlsx:
+
+Analyse van de clusters uit 6.
+Hierin wordt de huidige financiëring vergeleken met wat het zou zijn als we alle vestigingsplaatsen op hetzelfde adres als 1 instelling zouden nemen.
+
+8_analyse_units.xlsx:
+
+Analyse van de voorgestelde aanpassing naar units.
+De data uit 5 van de AS-IS wordt gebruikt om te berekenen wat elke unit nu krijgt.
+De leerlingen van de vestigingsplaatsen worden vervolgens samengenomen en de uren-leraar, directeur en punten worden berekend voor dit nieuwe scenario.
+De data wordt ook berekend in het geval van volledige herverdeling van de middelen (zie later - simulatie_alternatief_BEDRAG.xlsx).
+
+9_analyse_bestuur_net.xlsx:
+
+Aggregatie van de berekeningen uit 5 en 8 op het niveau bestuur en net.
+
+10_vergelijkbare_scholen.xlsx:
+
+Dit is een poging tot het vinden van scholen die gelijkaardig zijn om in te schatten hoe hun financiëring verandert ten gevolge van opsplitsingen. Dit is op basis van de scholen uit 7_analyse_clusters_zelfde_adres.xlsx.
+Voor deze analyse zijn scholen vergeleken op twee criteria: aantal leerlingen en verdeling van deze leerlingen over de leerlingengroepen.
+De clusters 'c_aantal_leerlingen' zijn een gevolg van een KMeans-clustering op aantal leerlingen.
+De clusters 'c_leerlingengroepen' zijn een gevolg van DBScan-clustering op aantal leerlingen en de 'llngr_percent'.
+
+11_analyse_clusters_vergelijkbaar.xlsx:
+
+Een poging tot het samenvoegen van de eerder beschreven clusters om te zien of hier een nuttige analyse uit gehaald kan worden.
+
+12_sn_in_meerdere_hoofdstruct.xlsx:
+
+Een opsomming van instellingen die meerdere hoofdstructuren hebben. 
+Schoolstructuren zijn bijvoorbeeld 'Voltijds gewoon secundair onderwijs' of 'Deeltijds beroepssecundair onderwijs'. 
+
+13_vestigingsplaatsen_binnen_straal_100m.xlsx:
+
+Dit is het equivalent van 6_zelfde_adres.xlsx, waarbij in plaats van scholen op hetzelfde adres, scholen op een afstand van 100m van elkaar worden bekeken.
+
+14_analyse_clusters_straal_100m.xlsx:
+
+De analyse van de clusters uit 13, cf 7_analyse_clusters_zelfde_adres.xlsx.
+
+15_analyse_net_llngroepen.xlsx:
+
+Per unit per leerlingengroep de uren-leraar voor de AS-IS en de TO-BE.
+
+21_analyse_instellingen.xlsx:
+
+Samenvoeging van de data uit 5 en 8 op het niveau van de instelligen.
+
+23_extra_omk_aanwendbaar.xlsx:
+
+Op het niveau vestigingsplaats alle omkadering die niet eerder berekend is, gehaald uit de brondata.
+
+
+BESTANDEN VOOR ALLE JAREN:
+
+16_jaren_samen.xlsx:
+
+De bestanden 5, 7, 14, 8, 9, 21 en 23 worden samengevoegd over de jaren.
+
+17_analyse_clusters_leerlingengroepen.xlsx:
+
+Leerlingeroepen aantallen voor de clusters uit 100m en zelfde adres over de jaren heen.
+
+18_dea_master.xlsx:
+
+Dit bestand wordt gebruikt als basis voor de DEA-analyse.
+De input voor zowel AS-IS, TO-BE en TO-BE herverdeeld per unit omgezet in euro.
+De output wordt uit de brondata gehaald.
+
+19_dea.xlsx:
+
+Een voorbeeld van een DEA.
+Filter:
+- Jaar: 2022-2023
+- Finaliteit: volledig ASO
+- Opgenomen studiepunten > 0
+Input: kost per leerling in het laatste jaar AS-IS
+Output: 2 verschillende analyses, namelijk studierendement en doorstroom percentage
+
+20_clusters_in_units.xlsx:
+
+Voor elk cluster uit adres en 100m wordt gekeken of ze tot een unit behoren om te zien of de vorming van units de opsplitsingen hier oplost.
+
+simulatie_alternatief_BEDRAG.xlsx:
+
+Gezien de verandering naar units grotere besparing is dan gewenst, worden de uren-leraar herverdeeld door de coëfficiënten van de degressieve uren-leraar aan te passen. De laatste schijf wordt verhoogd. In geval van verhoging groter dan de derde schijf, wordt de derde schijf mee verhoogd.
+Het input-bestand hiervoor is simulatie_input.xlsx. Het geval waarbij de besparing 0 is wordt gebruikt voor de herverdelingen in 8_analyse_units.xlsx
+
+ul_herwerking.xlsx:
+
+Per leerlingengroep wordt het verlies aan uren-leraar berekend en het percentage van het totaal aantal verloren uren-leraar.

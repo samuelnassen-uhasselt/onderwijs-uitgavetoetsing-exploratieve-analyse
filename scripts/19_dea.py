@@ -43,7 +43,7 @@ input = {
 
 output = {
     'kolom': 'doorstroom_percentage',
-    'label' : 'Percenatge Doorstroom HO - ASO'
+    'label' : 'Percentage Doorstroom HO - ASO'
 }
 
 X = df_units_2022[[input['kolom']]].values
