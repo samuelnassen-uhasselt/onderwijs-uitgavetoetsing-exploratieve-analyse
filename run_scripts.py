@@ -29,7 +29,7 @@ scripts = [
 
 others = [
     '16_jaren_samen.py', '17_analyze_clusters_llngroepen.py', '18_dea_master.py', '19_dea.py',
-    '20_vergelijk_clusters_units.py','22_simulatie_besparing.py'
+    '20_vergelijk_clusters_units.py','22_simulatie_besparing.py','24_check_clusters_inst.py'
 ]
 # others = [
 #     '16_jaren_samen.py'
