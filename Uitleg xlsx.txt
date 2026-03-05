@@ -127,6 +127,10 @@ Output: 2 verschillende analyses, namelijk studierendement en doorstroom percent
 
 Voor elk cluster uit adres en 100m wordt gekeken of ze tot een unit behoren om te zien of de vorming van units de opsplitsingen hier oplost.
 
+24_clusters_in_units_inst_check.xlsx:
+
+Een uitbreiding op 20, waarin voor het jaar 2024-2025 wordt gekeken of een cluster instellingsnumemrs heeft die in andere clusters voorkomen.
+
 simulatie_alternatief_BEDRAG.xlsx:
 
 Gezien de verandering naar units grotere besparing is dan gewenst, worden de uren-leraar herverdeeld door de coëfficiënten van de degressieve uren-leraar aan te passen. De laatste schijf wordt verhoogd. In geval van verhoging groter dan de derde schijf, wordt de derde schijf mee verhoogd.
